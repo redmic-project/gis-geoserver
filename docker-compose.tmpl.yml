@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   geoserver:
-    image: ${REGISTRY_HOSTNAME}/gis/geoserver:${IMAGE_TAG:-latest}
+    image: ${REGISTRY_HOSTNAME}/redmic-project/gis/geoserver:${IMAGE_TAG:-latest}
     environment:
       - ROLE=master
       - BROKER_SERVICE_NAME=activemq
