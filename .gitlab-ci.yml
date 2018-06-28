@@ -71,7 +71,9 @@ deploy-dev:
   services:
     - docker:dind
   script:
-    - deploy.sh IMAGE_TAG=${IMAGE_TAG} REGISTRY_HOSTNAME=${REGISTRY_HOSTNAME} COMPOSE_FILE=${COMPOSE_FILE}
+    - >
+      deploy.sh DOCKER_ENV_CI_REGISTRY_IMAGE={DOCKER_ENV_CI_REGISTRY_IMAGE} IMAGE_TAG=${IMAGE_TAG}
+      COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: dev
   only:
@@ -92,7 +94,9 @@ deploy-pro:
   services:
     - docker:dind
   script:
-    - deploy.sh IMAGE_TAG=${IMAGE_TAG} REGISTRY_HOSTNAME=${REGISTRY_HOSTNAME} COMPOSE_FILE=${COMPOSE_FILE}
+    - >
+      deploy.sh DOCKER_ENV_CI_REGISTRY_IMAGE={DOCKER_ENV_CI_REGISTRY_IMAGE} IMAGE_TAG=${IMAGE_TAG}
+      COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: pro
   only:
