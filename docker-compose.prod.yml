@@ -1,0 +1,34 @@
+version: '3.5'
+
+services:
+  geoserver:
+    ports:
+      - ${GEOSERVER_PORT}
+    networks:
+      - traefik-net
+    deploy:
+      mode: replicated
+      replicas: 3
+      labels:
+        traefik.port: "${GEOSERVER_PORT}"
+        traefik.docker.network: traefik-net
+        traefik.frontend.rule: Host:atlas.${PUBLIC_HOSTNAME}
+        traefik.backend: geoserver
+        traefik.backend.loadbalancer.stickiness: "true"
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
+networks:
+  traefik-net:
+    external: true
+
+volumes:
+  geoserver-vol:
+    name: "geoserver-vol"
+    driver: "cloudstor:aws"
+    driver_opts:
+      backing: shared

@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  geoserver:
+    container_name: geoserver
+    restart: on-failure:3
+    ports:
+      - 8095:${GEOSERVER_PORT}
+
+volumes:
+  geoserver-vol:
+    name: geoserver-vol
