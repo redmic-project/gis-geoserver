@@ -72,7 +72,7 @@ deploy-dev:
   services:
     - docker:dind
   script:
-    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} REGISTRY_HOSTNAME=${REGISTRY_HOSTNAME} COMPOSE_FILE=${COMPOSE_FILE}
+    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: dev
     url: https://atlas.${DEV_PUBLIC_HOSTNAME}
@@ -95,7 +95,7 @@ deploy-pro:
   services:
     - docker:dind
   script:
-    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} REGISTRY_HOSTNAME=${REGISTRY_HOSTNAME} COMPOSE_FILE=${COMPOSE_FILE}
+    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: pro
     url: https://atlas.${PRO_PUBLIC_HOSTNAME}
