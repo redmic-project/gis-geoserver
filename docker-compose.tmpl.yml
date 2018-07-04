@@ -6,13 +6,14 @@ services:
     environment:
       - ROLE=master
       - BROKER_SERVICE_NAME=activemq
+      - ACTIVEMQ_PORT
       - JAVA_OPTS=-Xmx512m -Xss512m
     networks:
       - gis-net
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
-      test: wget --spider -S -t 3 http://localhost:${GEOSERVER_PORT}
+      test: wget --spider -S -t 3 http://localhost:${GEOSERVER_PORT}/geoserver
       interval: 30s
       timeout: 10s
       retries: 3
