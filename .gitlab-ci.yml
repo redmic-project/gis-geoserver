@@ -66,16 +66,16 @@ deploy-dev:
     DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     SERVICE: ${CI_PROJECT_NAME}
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
   services:
     - docker:dind
   script:
-    - >
-      deploy.sh DOCKER_ENV_CI_REGISTRY_IMAGE={DOCKER_ENV_CI_REGISTRY_IMAGE} IMAGE_TAG=${IMAGE_TAG}
-      COMPOSE_FILE=${COMPOSE_FILE}
+    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: dev
+    url: https://atlas.${DEV_PUBLIC_HOSTNAME}
   only:
     - branches
   except:
@@ -89,16 +89,16 @@ deploy-pro:
     DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     SERVICE: ${CI_PROJECT_NAME}
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
   services:
     - docker:dind
   script:
-    - >
-      deploy.sh DOCKER_ENV_CI_REGISTRY_IMAGE={DOCKER_ENV_CI_REGISTRY_IMAGE} IMAGE_TAG=${IMAGE_TAG}
-      COMPOSE_FILE=${COMPOSE_FILE}
+    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: pro
+    url: https://atlas.${PRO_PUBLIC_HOSTNAME}
   only:
     - master
   when: manual
