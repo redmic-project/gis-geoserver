@@ -30,7 +30,4 @@ networks:
 
 volumes:
   geoserver-vol:
-    name: "geoserver-vol"
     driver: "cloudstor:aws"
-    driver_opts:
-      backing: shared
