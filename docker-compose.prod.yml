@@ -4,17 +4,17 @@ services:
   geoserver:
     ports:
       - ${GEOSERVER_PORT}
-    networks:
-      - traefik-net
     environment:
       - SWARM_MODE=true
+    networks:
+      - traefik-net
     deploy:
       mode: replicated
       replicas: 3
       labels:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
-        traefik.frontend.rule: Host:atlas.${PUBLIC_HOSTNAME}
+        traefik.frontend.rule: Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: geoserver
         traefik.backend.loadbalancer.stickiness: "true"
       placement:
@@ -30,4 +30,7 @@ networks:
 
 volumes:
   geoserver-vol:
+    name: "geoserver-vol"
     driver: "cloudstor:aws"
+    driver_opts:
+      backing: shared
