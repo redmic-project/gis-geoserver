@@ -4,10 +4,10 @@ services:
   geoserver:
     ports:
       - ${GEOSERVER_PORT}
-    networks:
-      - traefik-net
     environment:
       - SWARM_MODE=true
+    networks:
+      - traefik-net
     deploy:
       mode: replicated
       replicas: 3
@@ -30,4 +30,7 @@ networks:
 
 volumes:
   geoserver-vol:
+    name: "geoserver-vol"
     driver: "cloudstor:aws"
+    driver_opts:
+      backing: shared

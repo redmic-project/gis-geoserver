@@ -69,6 +69,7 @@ deploy-dev:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    STATUS_CHECK_DELAY: 120
   services:
     - docker:dind
   script:
@@ -92,6 +93,7 @@ deploy-pro:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
+    STATUS_CHECK_DELAY: 120
   services:
     - docker:dind
   script:
