@@ -14,7 +14,7 @@ services:
       labels:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
-        traefik.frontend.rule: Host:atlas.${PUBLIC_HOSTNAME}
+        traefik.frontend.rule: Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: geoserver
         traefik.backend.loadbalancer.stickiness: "true"
       placement:
