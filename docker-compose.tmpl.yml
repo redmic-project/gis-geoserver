@@ -23,3 +23,5 @@ services:
 networks:
   gis-net:
     external: true
+  postgres-net:
+    external: true
