@@ -19,6 +19,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
     NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
     BROKER_TOPIC_NAME="VirtualTopic.geoserver" \
+    ACTIVEMQ_PORT="61666" \
     BROKER_URL="tcp\://activemq-broker\:61666" \
     BROKER_GROUP="geoserver-cluster" \
     ROLE="slave"

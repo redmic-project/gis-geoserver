@@ -6,6 +6,8 @@ services:
       - ${GEOSERVER_PORT}
     networks:
       - traefik-net
+    environment:
+      - SWARM_MODE=true
     deploy:
       mode: replicated
       replicas: 3
