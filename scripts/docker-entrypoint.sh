@@ -27,7 +27,7 @@ echo "${SERVICE_NODES}"
 NODE_IPS=""
 for NODE_IP in ${SERVICE_NODES}; do
 	if [ -n "${NODE_IPS}" ]; then
-		NODE_IPS=","
+		NODE_IPS="${NODE_IPS},"
 	fi
 	NODE_IPS="${NODE_IPS}tcp\://${NODE_IP}\:${ACTIVEMQ_PORT}"
 done
