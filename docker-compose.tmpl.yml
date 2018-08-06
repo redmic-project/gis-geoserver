@@ -4,7 +4,7 @@ services:
   geoserver:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - ROLE=master
+      - ROLE=master-slave
       - BROKER_SERVICE_NAME=activemq
       - ACTIVEMQ_PORT
       - JAVA_OPTS=-Xmx512m -Xss512m

@@ -34,7 +34,10 @@ done
 
 export BROKER_URL="failover\:(${NODE_IPS})?jms.useAsyncSend\=true"
 
-if [ ${ROLE} == "master" ]; then
+if [ ${ROLE} == "master-slave" ]; then
+	export SLAVE_ACTIVE="true"
+	export MASTER_ACTIVE="true"
+else if [ ${ROLE} == "master" ]; then
 	export SLAVE_ACTIVE="false"
 	export MASTER_ACTIVE="true"
 else
