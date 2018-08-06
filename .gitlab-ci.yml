@@ -94,13 +94,16 @@ deploy-pro:
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     STATUS_CHECK_DELAY: 120
+    GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_SUBDOMAIN}
   services:
     - docker:dind
   script:
-    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+    ->
+     deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG}
+     COMPOSE_FILE=${COMPOSE_FILE} GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN}
   environment:
     name: pro
-    url: https://atlas.${PRO_PUBLIC_HOSTNAME}
+    url: https://${GEOSERVER_SUBDOMAIN}.${PRO_PUBLIC_HOSTNAME}
   only:
     - master
   when: manual
