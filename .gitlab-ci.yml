@@ -95,12 +95,14 @@ deploy-pro:
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     STATUS_CHECK_DELAY: 120
     GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_SUBDOMAIN}
+    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
   services:
     - docker:dind
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG}
       COMPOSE_FILE=${COMPOSE_FILE} GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: pro
     url: https://${GEOSERVER_SUBDOMAIN}.${PRO_PUBLIC_HOSTNAME}
