@@ -7,7 +7,7 @@ services:
       - ROLE=master-slave
       - BROKER_SERVICE_NAME=activemq
       - ACTIVEMQ_PORT
-      - JAVA_OPTS=-Xmx512m -Xss512m
+      - JAVA_OPTS=-Xmx1g -Xss1g
     networks:
       - gis-net
       - postgres-net
