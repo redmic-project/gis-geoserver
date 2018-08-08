@@ -2,8 +2,6 @@ version: '3.5'
 
 services:
   geoserver:
-    ports:
-      - ${GEOSERVER_PORT}
     environment:
       - SWARM_MODE=true
     networks:
