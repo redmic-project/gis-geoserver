@@ -4,8 +4,10 @@ set -e
 
 FILENAME="cluster"
 
-echo "Synchronizing ${GEOSERVER_DATA_DIR}"
-rsync -vrt ${GEOSERVER_HOME}/data_dir ${GEOSERVER_DATA_DIR}
+if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]; then
+	echo "Copy data_dir"
+	cp -r ${GEOSERVER_HOME}/data_dir/* ${GEOSERVER_DATA_DIR}
+fi
 
 if [ -z ${BROKER_SERVICE_NAME} ]; then
     >&2 echo "Environment variable BROKER_SERVICE_NAME unset. You MUST set it to a service name."
