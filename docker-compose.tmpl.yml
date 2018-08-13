@@ -4,7 +4,6 @@ services:
   geoserver-master:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - ROLE=master-slave
       - JAVA_OPTS=-Xmx1g -Xss1g
     networks:
       - gis-net
@@ -20,8 +19,7 @@ services:
   geoserver-slave:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - ROLE=slave
-      - JAVA_OPTS=-Xmx1g -Xss1g
+      - JAVA_OPTS=-Xmx1g -Xss1g -DGEOSERVER_CONSOLE_DISABLED=true
     networks:
       - gis-net
     volumes:
