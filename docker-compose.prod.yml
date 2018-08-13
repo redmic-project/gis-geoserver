@@ -31,7 +31,7 @@ services:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/{((?!web).*)};PathPrefix:/geoserver/{((?!rest).*)}"
-        traefik.frontend.priority: "100"
+        traefik.frontend.priority: "99"
         traefik.backend: geoserver-slave
       placement:
         constraints:
