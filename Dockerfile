@@ -22,9 +22,7 @@ ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
 
 ARG TEMP_PATH=/tmp/resources
 
-RUN mkdir -p $TEMP_PATH && \
-    mkdir -p $CLUSTER_CONFIG_DIR && \
-    mkdir -p $GEOSERVER_DATA_DIR
+RUN mkdir -p ${TEMP_PATH} ${GEOSERVER_DATA_DIR}
 
 # Install extra fonts to use with sld font markers
 RUN apt-get update && \
