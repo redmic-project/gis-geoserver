@@ -1,7 +1,5 @@
 FROM openjdk:8-jdk
 
-RUN export DEBIAN_FRONTEND=noninteractive
-
 ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal importer netcdf-out" \
     GEOSERVER_COMMUNITY_PLUGINS="gwc-s3 jms-cluster" \
@@ -25,15 +23,15 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     ROLE="slave"
 
 ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
-    GEOSERVER_LOG_LOCATION="${GEOSERVER_LOG_DIR}/geoserver.log"
+    GEOSERVER_LOG_LOCATION="${GEOSERVER_LOG_DIR}/geoserver.log" \
+    GDAL_DATA="/usr/share/gdal/2.1" \
+    JAVA_OPTS="${JAVA_OPTS} -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni ${GEOSERVER_OPTS}"
 
 ARG TEMP_PATH=/tmp/resources
-
 
 RUN mkdir -p $TEMP_PATH && \
     mkdir -p $CLUSTER_CONFIG_DIR && \
     mkdir -p $GEOSERVER_DATA_DIR
-
 
 # Install extra fonts to use with sld font markers
 RUN apt-get update && \
@@ -55,8 +53,7 @@ RUN apt-get update && \
         rsync
 
 # Copy resources
-COPY resources $TEMP_PATH
-
+COPY resources ${TEMP_PATH}
 
 # Install Google Noto fonts
 RUN mkdir -p /usr/share/fonts/truetype/noto && \
@@ -68,7 +65,6 @@ RUN mkdir -p /usr/share/fonts/truetype/noto && \
         unzip -o ${TEMP_PATH}/${FONT}.zip -d /usr/share/fonts/truetype/noto ; \
     done
 
-
 # Install Google Fonts
 RUN for FONT in ${GOOGLE_FONTS}; \
     do \
@@ -78,7 +74,6 @@ RUN for FONT in ${GOOGLE_FONTS}; \
         fi; \
         unzip -o ${TEMP_PATH}/${FONT}.zip -d /usr/share/fonts/truetype/${FONT} ; \
     done
-
 
 # Install GeoServer
 RUN FILENAME="geoserver-${GEOSERVER_VERSION}-bin.zip" && \
@@ -95,7 +90,6 @@ RUN FILENAME="geoserver-${GEOSERVER_VERSION}-bin.zip" && \
     rm -rf ${GEOSERVER_HOME}/data_dir/demo && \
     rm -rf ${GEOSERVER_HOME}/data_dir/logs
 
-
 # Install Marlin
 ARG MARLIN_VERSION=0.9.1
 RUN FILENAME=$(echo "marlin-${MARLIN_VERSION}-Unsafe.jar") && \
@@ -107,17 +101,14 @@ RUN FILENAME=$(echo "marlin-${MARLIN_VERSION}-Unsafe.jar") && \
 
 ENV MARLIN_JAR="${GEOSERVER_HOME}/lib/marlin-${MARLIN_VERSION}-Unsafe.jar"
 
-
 # Install Turbo JPEG
 ARG TURBO_JPEG_VERSION=1.5.3
-
 RUN TURBO_JPEG_FILENAME=$(echo "libjpeg-turbo-official_${TURBO_JPEG_VERSION}_amd64.deb") && \
     if [ ! -f ${TEMP_PATH}/${TURBO_JPEG_FILENAME} ]; then \
         URL="https://sourceforge.net/projects/libjpeg-turbo/files/${TURBO_JPEG_VERSION}/${TURBO_JPEG_FILENAME}" && \
         curl -L $URL --output ${TEMP_PATH}/${TURBO_JPEG_FILENAME} ; \
     fi; \
     dpkg -i ${TEMP_PATH}/$TURBO_JPEG_FILENAME
-
 
 # Install JAI & Image IO
 ARG JAI_VERSION=1_1_3
@@ -144,7 +135,6 @@ RUN rm ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/jai_*jar && \
     echo "yes" | sh $IMAGE_IO_FILENAME && \
     rm $IMAGE_IO_FILENAME
 
-
 # Install GeoServer Plugins
 RUN URL="https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/extensions" && \
     for PLUGIN in ${GEOSERVER_PLUGINS}; \
@@ -155,7 +145,6 @@ RUN URL="https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_
         fi; \
         unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/" ; \
     done
-
 
 # Install GeoServer Community Plugins
 RUN URL="http://ares.boundlessgeo.com/geoserver/${GEOSERVER_MAJOR_VERSION}.x/community-latest" && \
@@ -168,7 +157,6 @@ RUN URL="http://ares.boundlessgeo.com/geoserver/${GEOSERVER_MAJOR_VERSION}.x/com
         unzip -o ${TEMP_PATH}/${FILENAME} -d ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/ ; \
     done
 
-
 # Install ElasticSearch plugin
 RUN URL="https://github.com/ngageoint/elasticgeo/releases/download/${GEOSERVER_VERSION}-RC1/" && \
     FILENAME="elasticgeo-${GEOSERVER_VERSION}.zip" && \
@@ -177,16 +165,10 @@ RUN URL="https://github.com/ngageoint/elasticgeo/releases/download/${GEOSERVER_V
     fi; \
     unzip -o ${TEMP_PATH}/${FILENAME} -d ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/ ;
 
-
 ARG GDAL_VERSION="2.1.2"
 RUN rm ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/imageio-ext-gdal-bindings-*.jar && \
     ln -s /usr/share/java/gdal.jar \
         "${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/imageio-ext-gdal-bindings-${GDAL_VERSION}.jar"
-
-
-ENV GDAL_DATA="/usr/share/gdal/2.1" \
-    JAVA_OPTS="$JAVA_OPTS -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni $GEOSERVER_OPTS"
-
 
 # Clean
 RUN rm -fr ${TEMP_PATH} && \
@@ -194,8 +176,9 @@ RUN rm -fr ${TEMP_PATH} && \
     apt-get clean
 
 COPY ./scripts /
-ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8080
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["/opt/geoserver/bin/startup.sh"]
