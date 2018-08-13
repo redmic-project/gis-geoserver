@@ -11,11 +11,12 @@ services:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver,PathPrefix:/geoserver/web,PathPrefix:/geoserver/rest"
-        traefik.frontend.priority: "1"
+        traefik.frontend.priority: "100"
         traefik.backend: geoserver-master
       placement:
         constraints:
           - node.role == worker
+          - node.labels.workerid == 1
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -30,11 +31,12 @@ services:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/{((?!web).*)};PathPrefix:/geoserver/{((?!rest).*)}"
-        traefik.frontend.priority: "1"
+        traefik.frontend.priority: "100"
         traefik.backend: geoserver-slave
       placement:
         constraints:
           - node.role == worker
+          - node.labels.workerid != 1
       restart_policy:
         condition: on-failure
         max_attempts: 3

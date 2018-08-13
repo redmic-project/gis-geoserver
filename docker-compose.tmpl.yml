@@ -8,7 +8,6 @@ services:
       - JAVA_OPTS=-Xmx1g -Xss1g
     networks:
       - gis-net
-      - postgres-net
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
@@ -36,6 +35,4 @@ services:
 
 networks:
   gis-net:
-    external: true
-  postgres-net:
     external: true
