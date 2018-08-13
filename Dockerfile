@@ -2,25 +2,18 @@ FROM openjdk:8-jdk
 
 ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal importer netcdf-out" \
-    GEOSERVER_COMMUNITY_PLUGINS="gwc-s3 jms-cluster" \
+    GEOSERVER_COMMUNITY_PLUGINS="gwc-s3" \
     GEOSERVER_MAJOR_VERSION="2.12" \
     GEOSERVER_MINOR_VERSION="2" \
-    GEOSERVER_NODE_OPTS='id:$host_name' \
     GEOSERVER_DATA_DIR="/var/geoserver/data" \
     GEOSERVER_HOME="/opt/geoserver" \
     GEOSERVER_LOG_LOCATION="/var/log" \
-    CLUSTER_CONFIG_DIR="/var/geoserver/conf/cluster" \
     GEOSERVER_OPTS="-server -Xrs -XX:PerfDataSamplingInterval=500 \
      -Dorg.geotools.referencing.forceXY=true -XX:SoftRefLRUPolicyMSPerMB=36000 \
      -XX:+UseParallelGC --XX:+UseParNewGC –XX:+UseG1GC -XX:NewRatio=2 \
      -XX:+CMSClassUnloadingEnabled" \
     GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
-    NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
-    BROKER_TOPIC_NAME="VirtualTopic.geoserver" \
-    ACTIVEMQ_PORT="61666" \
-    BROKER_URL="tcp\://activemq-broker\:61666" \
-    BROKER_GROUP="geoserver-cluster" \
-    ROLE="slave"
+    NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted"
 
 ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
     GEOSERVER_LOG_LOCATION="${GEOSERVER_LOG_DIR}/geoserver.log" \
@@ -29,9 +22,7 @@ ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
 
 ARG TEMP_PATH=/tmp/resources
 
-RUN mkdir -p $TEMP_PATH && \
-    mkdir -p $CLUSTER_CONFIG_DIR && \
-    mkdir -p $GEOSERVER_DATA_DIR
+RUN mkdir -p ${TEMP_PATH} ${GEOSERVER_DATA_DIR}
 
 # Install extra fonts to use with sld font markers
 RUN apt-get update && \
@@ -47,10 +38,7 @@ RUN apt-get update && \
         libgdal-java \
         libnetcdf11 \
         libnetcdf-c++4 \
-        netcdf-bin \
-        gettext-base \
-        dnsutils \
-        rsync
+        netcdf-bin
 
 # Copy resources
 COPY resources ${TEMP_PATH}
@@ -156,14 +144,6 @@ RUN URL="http://ares.boundlessgeo.com/geoserver/${GEOSERVER_MAJOR_VERSION}.x/com
         fi; \
         unzip -o ${TEMP_PATH}/${FILENAME} -d ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/ ; \
     done
-
-# Install ElasticSearch plugin
-RUN URL="https://github.com/ngageoint/elasticgeo/releases/download/${GEOSERVER_VERSION}-RC1/" && \
-    FILENAME="elasticgeo-${GEOSERVER_VERSION}.zip" && \
-    if [ ! -f ${TEMP_PATH}/${FILENAME} ]; then \
-        curl -L $URL/$FILENAME -o ${TEMP_PATH}/${FILENAME} ; \
-    fi; \
-    unzip -o ${TEMP_PATH}/${FILENAME} -d ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/ ;
 
 ARG GDAL_VERSION="2.1.2"
 RUN rm ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/imageio-ext-gdal-bindings-*.jar && \
