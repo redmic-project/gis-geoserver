@@ -1,8 +1,8 @@
 version: '3.5'
 
 services:
-  geoserver:
-    container_name: geoserver
+  geoserver-master:
+    container_name: geoserver-master
     restart: on-failure:3
     ports:
       - 8095:${GEOSERVER_PORT}
