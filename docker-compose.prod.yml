@@ -2,6 +2,8 @@ version: '3.5'
 
 services:
   geoserver-master:
+    environment:
+      - SWARM_MODE=true
     networks:
       - traefik-net
     deploy:
@@ -48,6 +50,7 @@ services:
           memory: 1500M
         reservations:
           memory: 1200M
+
 networks:
   traefik-net:
     external: true

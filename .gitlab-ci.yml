@@ -69,7 +69,7 @@ deploy-dev:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    STATUS_CHECK_DELAY: 120
+    STATUS_CHECK_DELAY: '60'
   services:
     - docker:dind
   script:
@@ -91,7 +91,7 @@ deploy-supporting-branch:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    STATUS_CHECK_DELAY: 120
+    STATUS_CHECK_DELAY: '60'
   services:
     - docker:dind
   script:
@@ -117,7 +117,8 @@ deploy-pro:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
-    STATUS_CHECK_DELAY: 120
+    STATUS_CHECK_DELAY: '120'
+    STATUS_CHECK_INTERVAL: '20'
     GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_SUBDOMAIN}
     GEOSERVER_ADMIN_SUBDOMAIN: ${PRO_GEOSERVER_ADMIN_SUBDOMAIN}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}

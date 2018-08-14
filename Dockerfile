@@ -38,7 +38,8 @@ RUN apt-get update && \
         libgdal-java \
         libnetcdf11 \
         libnetcdf-c++4 \
-        netcdf-bin
+        netcdf-bin \
+        dnsutils
 
 # Copy resources
 COPY resources ${TEMP_PATH}
@@ -83,9 +84,9 @@ ARG MARLIN_VERSION=0.9.1
 RUN FILENAME=$(echo "marlin-${MARLIN_VERSION}-Unsafe.jar") && \
     if [ ! -f ${TEMP_PATH}/${FILENAME} ]; then \
         URL="https://github.com/bourgesl/marlin-renderer/releases/download/v0_9_1//${FILENAME}" && \
-        curl -L $URL --output ${TEMP_PATH}/${FILENAME} ; \
+        curl -L ${URL} --output ${TEMP_PATH}/${FILENAME} ; \
     fi; \
-    cp ${TEMP_PATH}/$FILENAME ${GEOSERVER_HOME}/lib
+    cp ${TEMP_PATH}/${FILENAME} ${GEOSERVER_HOME}/lib
 
 ENV MARLIN_JAR="${GEOSERVER_HOME}/lib/marlin-${MARLIN_VERSION}-Unsafe.jar"
 
@@ -94,34 +95,34 @@ ARG TURBO_JPEG_VERSION=1.5.3
 RUN TURBO_JPEG_FILENAME=$(echo "libjpeg-turbo-official_${TURBO_JPEG_VERSION}_amd64.deb") && \
     if [ ! -f ${TEMP_PATH}/${TURBO_JPEG_FILENAME} ]; then \
         URL="https://sourceforge.net/projects/libjpeg-turbo/files/${TURBO_JPEG_VERSION}/${TURBO_JPEG_FILENAME}" && \
-        curl -L $URL --output ${TEMP_PATH}/${TURBO_JPEG_FILENAME} ; \
+        curl -L ${URL} --output ${TEMP_PATH}/${TURBO_JPEG_FILENAME} ; \
     fi; \
-    dpkg -i ${TEMP_PATH}/$TURBO_JPEG_FILENAME
+    dpkg -i ${TEMP_PATH}/${TURBO_JPEG_FILENAME}
 
 # Install JAI & Image IO
 ARG JAI_VERSION=1_1_3
 ARG IMAGE_IO_VERSION=1_1
 
 RUN rm ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/jai_*jar && \
-    cd $JAVA_HOME && \
-    echo $JAVA_HOME && \
+    cd ${JAVA_HOME} && \
+    echo ${JAVA_HOME} && \
     JAI_FILENAME=$(echo "jai-${JAI_VERSION}-lib-linux-amd64-jdk.bin") && \
     if [ ! -f ${TEMP_PATH}/${JAI_FILENAME} ]; then \
         URL="http://data.boundlessgeo.com/suite/jai/${JAI_FILENAME}" && \
-        curl -L $URL --output $TEMP_PATH/$JAI_FILENAME ; \
+        curl -L ${URL} --output ${TEMP_PATH}/${JAI_FILENAME} ; \
     fi; \
-    mv $TEMP_PATH/$JAI_FILENAME $JAVA_HOME && \
-    echo "yes" | sh $JAI_FILENAME && \
-    rm $JAI_FILENAME && \
+    mv ${TEMP_PATH}/${JAI_FILENAME} ${JAVA_HOME} && \
+    echo "yes" | sh ${JAI_FILENAME} && \
+    rm ${JAI_FILENAME} && \
     export _POSIX2_VERSION=199209 && \
     IMAGE_IO_FILENAME="jai_imageio-${IMAGE_IO_VERSION}-lib-linux-amd64-jdk.bin" && \
     if [ ! -f ${TEMP_PATH}/${IMAGE_IO_FILENAME} ]; then \
         URL="http://data.opengeo.org/suite/jai/${IMAGE_IO_FILENAME}" && \
-        curl -L $URL --output $TEMP_PATH/$IMAGE_IO_FILENAME ; \
+        curl -L ${URL} --output ${TEMP_PATH}/${IMAGE_IO_FILENAME} ; \
     fi; \
-    mv $TEMP_PATH/$IMAGE_IO_FILENAME $JAVA_HOME && \
-    echo "yes" | sh $IMAGE_IO_FILENAME && \
-    rm $IMAGE_IO_FILENAME
+    mv ${TEMP_PATH}/${IMAGE_IO_FILENAME} ${JAVA_HOME} && \
+    echo "yes" | sh ${IMAGE_IO_FILENAME} && \
+    rm ${IMAGE_IO_FILENAME}
 
 # Install GeoServer Plugins
 RUN URL="https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/extensions" && \
@@ -129,7 +130,7 @@ RUN URL="https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_
     do \
         FILENAME="geoserver-${GEOSERVER_VERSION}-${PLUGIN}-plugin.zip" && \
         if [ ! -f ${TEMP_PATH}/${FILENAME} ]; then \
-            curl -L "$URL/$FILENAME" -o "${TEMP_PATH}/${FILENAME}" ; \
+            curl -L "${URL}/${FILENAME}" -o "${TEMP_PATH}/${FILENAME}" ; \
         fi; \
         unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/" ; \
     done
@@ -140,7 +141,7 @@ RUN URL="http://ares.boundlessgeo.com/geoserver/${GEOSERVER_MAJOR_VERSION}.x/com
     do \
         FILENAME="geoserver-${GEOSERVER_MAJOR_VERSION}-SNAPSHOT-${PLUGIN}-plugin.zip" && \
         if [ ! -f ${TEMP_PATH}/${FILENAME} ]; then \
-            curl -L $URL/$FILENAME -o ${TEMP_PATH}/${FILENAME} ; \
+            curl -L ${URL}/${FILENAME} -o ${TEMP_PATH}/${FILENAME} ; \
         fi; \
         unzip -o ${TEMP_PATH}/${FILENAME} -d ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/ ; \
     done
@@ -157,7 +158,7 @@ RUN rm -fr ${TEMP_PATH} && \
 
 COPY ./scripts /
 
-EXPOSE 8080
+EXPOSE ${GEOSERVER_PORT}
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
