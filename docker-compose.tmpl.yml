@@ -4,7 +4,15 @@ services:
   geoserver-master:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
+      - ROLE=master
       - JAVA_OPTS=-Xmx512m -Xss512m
+      - GEOSERVER_PORT
+      - GEOSERVER_USER
+      - GEOSERVER_PASS
+      - SLAVE_SERVICE_NAME
+      - SLAVES_MANAGEMENT_DELAY
+      - SLAVES_MANAGEMENT_INTERVAL
+      - SLAVE_MANAGEMENT_TIMEOUT
     networks:
       - gis-net
       - postgres-net
