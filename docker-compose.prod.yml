@@ -11,9 +11,10 @@ services:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.admin.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web,PathPrefix:/geoserver/rest"
-        traefik.admin.backend: admin
+        traefik.admin.frontend.priority: "100"
         traefik.content.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
-        traefik.content.backend: content
+        traefik.content.frontend.priority: "99"
+        traefik.backend: geoserver-master
       placement:
         constraints:
           - node.role == worker
@@ -32,7 +33,8 @@ services:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
-        traefik.backend: geoserver
+        traefik.frontend.priority: "99"
+        traefik.backend: geoserver-slave
       placement:
         constraints:
           - node.role == worker
