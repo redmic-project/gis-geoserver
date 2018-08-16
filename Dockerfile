@@ -153,7 +153,7 @@ RUN rm -fr ${TEMP_PATH} && \
     useradd geoserver && \
     chown -R geoserver:geoserver "${GEOSERVER_DATA_DIR}" && \
     chown -R geoserver:geoserver "${GEOSERVER_HOME}" && \
-    chown -R geoserver:geoserver "${GEOSERVER_LOG_LOCATION}"
+    chown -R geoserver:geoserver "${GEOSERVER_LOG_DIR}"
 
 USER geoserver
 
