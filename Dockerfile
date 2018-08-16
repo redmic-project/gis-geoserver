@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_MINOR_VERSION="4" \
     GEOSERVER_DATA_DIR="/var/geoserver/data" \
     GEOSERVER_HOME="/opt/geoserver" \
-    GEOSERVER_LOG_LOCATION="/var/log/geoserver" \
+    GEOSERVER_LOG_DIR="/var/log/geoserver" \
     GEOSERVER_OPTS="-server -Xrs -XX:PerfDataSamplingInterval=500 \
      -Dorg.geotools.referencing.forceXY=true -XX:SoftRefLRUPolicyMSPerMB=36000 \
      -XX:+UseG1GC -XX:NewRatio=2 -XX:+CMSClassUnloadingEnabled \
@@ -24,7 +24,7 @@ ARG TEMP_PATH=/tmp/resources
 
 RUN mkdir -p ${TEMP_PATH} && \
     mkdir -p ${GEOSERVER_DATA_DIR} && \
-    mkdir -p ${GEOSERVER_LOG_LOCATION}
+    mkdir -p ${GEOSERVER_LOG_DIR}
 
 # Install extra fonts to use with sld font markers
 RUN apt-get update && \
