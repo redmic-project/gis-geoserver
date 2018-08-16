@@ -10,15 +10,15 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_LOG_LOCATION="/var/log/geoserver" \
     GEOSERVER_OPTS="-server -Xrs -XX:PerfDataSamplingInterval=500 \
      -Dorg.geotools.referencing.forceXY=true -XX:SoftRefLRUPolicyMSPerMB=36000 \
-     -XX:+UseG1GC -XX:NewRatio=2 -XX:+CMSClassUnloadingEnabled" \
+     -XX:+UseG1GC -XX:NewRatio=2 -XX:+CMSClassUnloadingEnabled \
+     -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
     GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
     NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
     GEOSERVER_PORT="8080"
 
 ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
     GEOSERVER_LOG_LOCATION="${GEOSERVER_LOG_DIR}/geoserver.log" \
-    GDAL_DATA="/usr/share/gdal/2.1" \
-    JAVA_OPTS="${JAVA_OPTS} -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni ${GEOSERVER_OPTS}"
+    GDAL_DATA="/usr/share/gdal/2.1"
 
 ARG TEMP_PATH=/tmp/resources
 
@@ -82,6 +82,7 @@ RUN FILENAME=$(echo "marlin-${MARLIN_VERSION}-Unsafe.jar") && \
     fi; \
     cp ${TEMP_PATH}/${FILENAME} ${GEOSERVER_HOME}/lib
 
+# El espacio final es necesario, corrige bug en script de arranque
 ENV MARLIN_JAR="${GEOSERVER_HOME}/lib/marlin-${MARLIN_VERSION}-Unsafe.jar "
 
 # Install Turbo JPEG
