@@ -4,16 +4,16 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal importer netcdf-out" \
     GEOSERVER_COMMUNITY_PLUGINS="gwc-s3" \
     GEOSERVER_MAJOR_VERSION="2.12" \
-    GEOSERVER_MINOR_VERSION="2" \
+    GEOSERVER_MINOR_VERSION="4" \
     GEOSERVER_DATA_DIR="/var/geoserver/data" \
     GEOSERVER_HOME="/opt/geoserver" \
-    GEOSERVER_LOG_LOCATION="/var/log" \
+    GEOSERVER_LOG_LOCATION="/var/log/geoserver" \
     GEOSERVER_OPTS="-server -Xrs -XX:PerfDataSamplingInterval=500 \
      -Dorg.geotools.referencing.forceXY=true -XX:SoftRefLRUPolicyMSPerMB=36000 \
-     -XX:+UseParallelGC --XX:+UseParNewGC –XX:+UseG1GC -XX:NewRatio=2 \
-     -XX:+CMSClassUnloadingEnabled" \
+     -XX:+UseG1GC -XX:NewRatio=2 -XX:+CMSClassUnloadingEnabled" \
     GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
-    NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted"
+    NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
+    GEOSERVER_PORT="8080"
 
 ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
     GEOSERVER_LOG_LOCATION="${GEOSERVER_LOG_DIR}/geoserver.log" \
@@ -22,7 +22,9 @@ ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
 
 ARG TEMP_PATH=/tmp/resources
 
-RUN mkdir -p ${TEMP_PATH} ${GEOSERVER_DATA_DIR}
+RUN mkdir -p ${TEMP_PATH} && \
+    mkdir -p ${GEOSERVER_DATA_DIR} && \
+    mkdir -p ${GEOSERVER_LOG_LOCATION}
 
 # Install extra fonts to use with sld font markers
 RUN apt-get update && \
@@ -42,8 +44,6 @@ RUN apt-get update && \
         dnsutils
 
 # Copy resources
-COPY resources ${TEMP_PATH}
-
 # Install Google Noto fonts
 RUN mkdir -p /usr/share/fonts/truetype/noto && \
     for FONT in ${NOTO_FONTS}; \
@@ -71,13 +71,7 @@ RUN FILENAME="geoserver-${GEOSERVER_VERSION}-bin.zip" && \
         curl -L ${URL}/${FILENAME} -o ${TEMP_PATH}/${FILENAME} ; \
     fi; \
     unzip -o ${TEMP_PATH}/${FILENAME} -d /opt/ && \
-    mv -v ${GEOSERVER_HOME}* ${GEOSERVER_HOME} && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/workspaces/* && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/layergroups/* && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/data/* && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/coverages/* && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/demo && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/logs
+    mv -v ${GEOSERVER_HOME}* ${GEOSERVER_HOME}
 
 # Install Marlin
 ARG MARLIN_VERSION=0.9.1
@@ -88,7 +82,7 @@ RUN FILENAME=$(echo "marlin-${MARLIN_VERSION}-Unsafe.jar") && \
     fi; \
     cp ${TEMP_PATH}/${FILENAME} ${GEOSERVER_HOME}/lib
 
-ENV MARLIN_JAR="${GEOSERVER_HOME}/lib/marlin-${MARLIN_VERSION}-Unsafe.jar"
+ENV MARLIN_JAR="${GEOSERVER_HOME}/lib/marlin-${MARLIN_VERSION}-Unsafe.jar "
 
 # Install Turbo JPEG
 ARG TURBO_JPEG_VERSION=1.5.3
@@ -154,7 +148,13 @@ RUN rm ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/lib/imageio-ext-gdal-bindings
 # Clean
 RUN rm -fr ${TEMP_PATH} && \
     rm -rf /var/lib/apt/lists/* && \
-    apt-get clean
+    apt-get clean && \
+    useradd geoserver && \
+    chown -R geoserver:geoserver "${GEOSERVER_DATA_DIR}" && \
+    chown -R geoserver:geoserver "${GEOSERVER_HOME}" && \
+    chown -R geoserver:geoserver "${GEOSERVER_LOG_LOCATION}"
+
+USER geoserver
 
 COPY ./scripts /
 
