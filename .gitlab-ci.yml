@@ -125,6 +125,7 @@ deploy-pro:
   services:
     - docker:dind
   script:
+    - create-nets.sh gis-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG}
       COMPOSE_FILE=${COMPOSE_FILE} GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN}
