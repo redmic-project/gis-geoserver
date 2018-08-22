@@ -19,7 +19,8 @@ services:
           - node.role == manager
       restart_policy:
         condition: on-failure
-        max_attempts: 3
+        delay: 1m
+        window: 3m
       resources:
         limits:
           cpus: '0.25'
@@ -43,7 +44,8 @@ services:
           - node.role == worker
       restart_policy:
         condition: on-failure
-        max_attempts: 3
+        delay: 1m
+        window: 3m
       resources:
         limits:
           cpus: '0.50'
