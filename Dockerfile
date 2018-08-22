@@ -35,6 +35,7 @@ RUN apt-get update && \
         ttf-bitstream-vera \
         ttf-sjfonts \
         tv-fonts \
+        fonts-lyx \
         libtcnative-1 \
         libgdal20 \
         libgdal-java \
