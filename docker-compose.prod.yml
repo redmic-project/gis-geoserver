@@ -48,10 +48,10 @@ services:
         window: 3m
       resources:
         limits:
-          cpus: '0.50'
-          memory: 1500M
+          cpus: '0.75'
+          memory: 2500M
         reservations:
-          memory: 1200M
+          memory: 2200M
 
 networks:
   traefik-net:

@@ -28,7 +28,7 @@ services:
   geoserver-slave:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - JAVA_OPTS=-Xmx1g -Xss1g -DGEOSERVER_CONSOLE_DISABLED=true -DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+      - JAVA_OPTS=-Xmx2g -Xss2g -DGEOSERVER_CONSOLE_DISABLED=true -DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
       - postgres-net
