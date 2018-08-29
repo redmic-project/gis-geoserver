@@ -13,6 +13,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
      -XX:+HeapDumpOnOutOfMemoryError \
      -XX:MaxNewSize=256m \
      -XX:NewSize=256m \
+     -XX:MaxMetaspaceSize=128m \
      -XX:SurvivorRatio=12 \
      -XX:MaxTenuringThreshold=0 \
      -XX:+UseConcMarkSweepGC \
@@ -25,6 +26,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
      -XX:PerfDataSamplingInterval=500 \
      -XX:+UnlockExperimentalVMOptions \
      -XX:+UseCGroupMemoryLimitForHeap \
+     -XX:MaxRAMFraction=1 \
      -Djava.awt.headless=true \
      -Dorg.geotools.referencing.forceXY=true \
      -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
