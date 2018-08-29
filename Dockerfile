@@ -8,9 +8,25 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_DATA_DIR="/var/geoserver/data" \
     GEOSERVER_HOME="/opt/geoserver" \
     GEOSERVER_LOG_DIR="/var/log/geoserver" \
-    GEOSERVER_OPTS="-server -Xrs -XX:PerfDataSamplingInterval=500 \
-     -Dorg.geotools.referencing.forceXY=true -XX:SoftRefLRUPolicyMSPerMB=36000 \
-     -XX:+UseG1GC -XX:NewRatio=2 -XX:+CMSClassUnloadingEnabled \
+    GEOSERVER_OPTS="-server \
+     -XX:+AggressiveOpts \
+     -XX:+HeapDumpOnOutOfMemoryError \
+     -XX:MaxNewSize=256m \
+     -XX:NewSize=256m \
+     -XX:SurvivorRatio=12 \
+     -XX:MaxTenuringThreshold=0 \
+     -XX:+UseConcMarkSweepGC \
+     -XX:+CMSIncrementalMode \
+     -XX:+CMSIncrementalPacing \
+     -XX:+CMSClassUnloadingEnabled \
+     -XX:+DisableExplicitGC \
+     -XX:+UseTLAB \
+     -XX:SoftRefLRUPolicyMSPerMB=36000 \
+     -XX:PerfDataSamplingInterval=500 \
+     -XX:+UnlockExperimentalVMOptions \
+     -XX:+UseCGroupMemoryLimitForHeap \
+     -Djava.awt.headless=true \
+     -Dorg.geotools.referencing.forceXY=true \
      -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
     GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
     NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
