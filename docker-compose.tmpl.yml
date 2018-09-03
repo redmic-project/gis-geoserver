@@ -5,7 +5,7 @@ services:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - ROLE=master
-      - JAVA_OPTS=-Xmx512m -Xss512m -DPROXY_BASE_URL=https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
       - GEOSERVER_PORT
       - GEOSERVER_USER
       - GEOSERVER_PASS
