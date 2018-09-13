@@ -3,13 +3,15 @@ stages:
   - test-package
   - deploy
 
+variables:
+  DOCKER_DRIVER: overlay2
+
+services:
+  - docker:dind
+
 docker-build-commit-non-master-branches:
   stage: package
   image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:dind
   only:
     - branches
   except:
@@ -22,10 +24,6 @@ docker-build-commit-non-master-branches:
 docker-build-commit-master-branch:
   stage: package
   image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:dind
   only:
     - master
   script:
@@ -36,11 +34,7 @@ docker-build-commit-master-branch:
 container-scanning:
   stage: test-package
   image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
   allow_failure: true
-  services:
-    - docker:stable-dind
   only:
     - branches
   script:
@@ -63,17 +57,21 @@ deploy-dev:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
-    DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICE: ${CI_PROJECT_NAME}
+    STACK: gis
+    SERVICES_TO_CHECK: gis_geoserver-master gis_geoserver-slave
+    STATUS_CHECK_DELAY: 180
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    STATUS_CHECK_DELAY: '60'
-  services:
-    - docker:dind
+    GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_SUBDOMAIN}
+    GEOSERVER_ADMIN_SUBDOMAIN: ${DEV_GEOSERVER_ADMIN_SUBDOMAIN}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   script:
-    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} GEOSERVER_ADMIN_SUBDOMAIN=${GEOSERVER_ADMIN_SUBDOMAIN}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
     url: https://atlas.${DEV_PUBLIC_HOSTNAME}
@@ -85,17 +83,21 @@ deploy-supporting-branch:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
-    DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICE: ${CI_PROJECT_NAME}
+    STACK: gis
+    SERVICES_TO_CHECK: gis_geoserver-master gis_geoserver-slave
+    STATUS_CHECK_DELAY: 180
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
-    STATUS_CHECK_DELAY: '60'
-  services:
-    - docker:dind
+    GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_SUBDOMAIN}
+    GEOSERVER_ADMIN_SUBDOMAIN: ${DEV_GEOSERVER_ADMIN_SUBDOMAIN}
+    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   script:
-    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} GEOSERVER_ADMIN_SUBDOMAIN=${GEOSERVER_ADMIN_SUBDOMAIN}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: dev
     url: https://atlas.${DEV_PUBLIC_HOSTNAME}
@@ -110,26 +112,22 @@ deploy-pro:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
-    DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICE: gis
+    STACK: gis
     SERVICES_TO_CHECK: gis_geoserver-master gis_geoserver-slave
+    STATUS_CHECK_DELAY: 180
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
-    STATUS_CHECK_DELAY: '180'
-    STATUS_CHECK_INTERVAL: '20'
     GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_SUBDOMAIN}
     GEOSERVER_ADMIN_SUBDOMAIN: ${PRO_GEOSERVER_ADMIN_SUBDOMAIN}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-  services:
-    - docker:dind
   script:
     - create-nets.sh gis-net
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG}
-      COMPOSE_FILE=${COMPOSE_FILE} GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN}
-      GEOSERVER_ADMIN_SUBDOMAIN=${GEOSERVER_ADMIN_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} GEOSERVER_ADMIN_SUBDOMAIN=${GEOSERVER_ADMIN_SUBDOMAIN}
+      PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
   environment:
     name: pro
     url: https://${GEOSERVER_SUBDOMAIN}.${PRO_PUBLIC_HOSTNAME}
