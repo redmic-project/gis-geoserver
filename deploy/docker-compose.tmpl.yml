@@ -4,8 +4,6 @@ services:
   geoserver-master:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - ROLE=master
-      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
       - GEOSERVER_PORT
       - GEOSERVER_USER
       - GEOSERVER_PASS
@@ -13,9 +11,13 @@ services:
       - SLAVES_MANAGEMENT_DELAY
       - SLAVES_MANAGEMENT_INTERVAL
       - SLAVE_MANAGEMENT_TIMEOUT
+      - ROLE=master
+      - SWARM_MODE=true
+      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
       - postgres-net
+      - traefik-net
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
@@ -32,6 +34,7 @@ services:
     networks:
       - gis-net
       - postgres-net
+      - traefik-net
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
@@ -44,5 +47,9 @@ services:
 networks:
   gis-net:
     external: true
+
   postgres-net:
+    external: true
+
+  traefik-net:
     external: true

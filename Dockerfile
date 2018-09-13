@@ -1,5 +1,7 @@
 FROM openjdk:8-jdk
 
+LABEL maintainer="info@redmic.es"
+
 ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal importer netcdf-out" \
     GEOSERVER_COMMUNITY_PLUGINS="gwc-s3" \
