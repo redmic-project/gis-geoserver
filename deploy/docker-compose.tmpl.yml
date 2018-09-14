@@ -25,7 +25,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 2m
+      start_period: 4m
 
   geoserver-slave:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
