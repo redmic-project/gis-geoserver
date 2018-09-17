@@ -13,24 +13,7 @@ services:
       - SLAVE_MANAGEMENT_TIMEOUT
       - ROLE=master
       - SWARM_MODE=true
-      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
-    networks:
-      - gis-net
-      - postgres-net
-      - traefik-net
-    volumes:
-      - geoserver-vol:/var/geoserver/data
-    healthcheck:
-      test: wget --spider -S -t 3 http://localhost:${GEOSERVER_PORT}/geoserver
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 4m
-
-  geoserver-slave:
-    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
-    environment:
-      - JAVA_OPTS=-DGEOSERVER_CONSOLE_DISABLED=true -DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
       - postgres-net
