@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sleep 15
+
 if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]
 then
     mkdir -p ${GEOSERVER_DATA_DIR}/coverages
