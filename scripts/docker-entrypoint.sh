@@ -4,8 +4,7 @@ if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]
 then
 	echo "Copy data_dir"
 
-	ls "${GEOSERVER_DATA_DIR}"
-	sleep 30
+	sleep 10
 	ls "${GEOSERVER_DATA_DIR}"
 
 	mv "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}/"
