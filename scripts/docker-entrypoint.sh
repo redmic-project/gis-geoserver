@@ -2,17 +2,17 @@
 
 if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]
 then
-	echo "Copy data_dir"
+    mkdir -p ${GEOSERVER_DATA_DIR}/coverages
+    mkdir -p ${GEOSERVER_DATA_DIR}/data
+    mkdir -p ${GEOSERVER_DATA_DIR}/gwc-layers
+    mkdir -p ${GEOSERVER_DATA_DIR}/layergroups
+    mkdir -p ${GEOSERVER_DATA_DIR}/workspaces
 
-	ls "${GEOSERVER_DATA_DIR}"
-	sleep 30
-	ls "${GEOSERVER_DATA_DIR}"
+	echo "${GEOSERVER_HOME}"
+	cp -arv "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}"
 
-	mv "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}/"
-	rm -rf ${GEOSERVER_DATA_DIR}/workspaces/*
-	rm -rf ${GEOSERVER_DATA_DIR}/layergroups/*
-	rm -rf ${GEOSERVER_DATA_DIR}/data/*
-	rm -rf ${GEOSERVER_DATA_DIR}/coverages/*
+	echo "Delete data_dir in container"
+	rm -rf "${GEOSERVER_HOME}/data_dir"
 fi
 
 export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} -DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION}"
