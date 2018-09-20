@@ -1,27 +1,27 @@
 version: '3.5'
 
 services:
-  geoserver-master:
+  geoserver:
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       labels:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
-        traefik.backend: geoserver-master
+        traefik.backend: geoserver
       placement:
         constraints:
-          - node.role == manager
+          - node.role == worker
       restart_policy:
         delay: 1m
         window: 3m
       resources:
         limits:
-          cpus: '0.5'
-          memory: 1G
+          cpus: '0.75'
+          memory: 2G
         reservations:
-          memory: 820M
+          memory: 1639M
 
 volumes:
   geoserver-vol:

@@ -1,10 +1,10 @@
 version: '3.5'
 
 services:
-  geoserver-slave:
+  geoserver:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - JAVA_OPTS=-DGEOSERVER_CONSOLE_DISABLED=true -DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+      - -DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
       - postgres-net
