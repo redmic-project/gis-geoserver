@@ -10,7 +10,6 @@ then
     mkdir -p ${GEOSERVER_DATA_DIR}/gwc-layers
     mkdir -p ${GEOSERVER_DATA_DIR}/layergroups
     mkdir -p ${GEOSERVER_DATA_DIR}/workspaces
-    mkdir -p ${GEOSERVER_DATA_DIR}/cluster
 
     cp -arv "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}"
 
@@ -18,12 +17,16 @@ then
 	rm -rf "${GEOSERVER_HOME}/data_dir"
 fi
 
+if [ ! -d "${GEOSERVER_DATA_DIR}" ]
+then
+    mkdir -p ${GEOSERVER_DATA_DIR}/cluster
 
-clusterTemplateFilename="cluster"
-hazelcastTemplateFilename="hazelcast"
+    clusterTemplateFilename="cluster"
+    hazelcastTemplateFilename="hazelcast"
 
-envsubst < /${clusterTemplateFilename}.template > ${GEOSERVER_DATA_DIR}/cluster/${clusterTemplateFilename}.properties
-envsubst < /${hazelcastTemplateFilename}.template > ${GEOSERVER_DATA_DIR}/cluster/${hazelcastTemplateFilename}.properties
+    envsubst < /${clusterTemplateFilename}.template > ${GEOSERVER_DATA_DIR}/cluster/${clusterTemplateFilename}.properties
+    envsubst < /${hazelcastTemplateFilename}.template > ${GEOSERVER_DATA_DIR}/cluster/${hazelcastTemplateFilename}.properties
+fi
 
 export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} -DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION}"
 
