@@ -1,0 +1,3 @@
+sync_mode=${SYNC_MODE}
+sync_delay=${SYNC_DELAY}
+session_sticky=${SESSION_STICKY}

@@ -4,9 +4,9 @@ LABEL maintainer="info@redmic.es"
 
 ENV DEBIAN_FRONTEND="noninteractive" \
     GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal importer netcdf-out" \
-    GEOSERVER_COMMUNITY_PLUGINS="gwc-s3" \
+    GEOSERVER_COMMUNITY_PLUGINS="gwc-s3 hz-cluster" \
     GEOSERVER_MAJOR_VERSION="2.12" \
-    GEOSERVER_MINOR_VERSION="4" \
+    GEOSERVER_MINOR_VERSION="5" \
     GEOSERVER_DATA_DIR="/var/geoserver/data" \
     GEOSERVER_HOME="/opt/geoserver" \
     GEOSERVER_LOG_DIR="/var/log/geoserver" \
@@ -34,7 +34,13 @@ ENV DEBIAN_FRONTEND="noninteractive" \
      -Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
     GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
     NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
-    GEOSERVER_PORT="8080"
+    GEOSERVER_PORT="8080" \
+    SYNC_MODE="event" \
+    SYNC_DELAY="0" \
+    CLUSTER_NAME="geoserver-cluster" \
+    CLUSTER_PASSWORD="changeme" \
+    SESSION_STICKY="true" \
+    HAZELCAST_PORT="5701"
 
 ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
     GEOSERVER_LOG_LOCATION="${GEOSERVER_LOG_DIR}/geoserver.log" \
@@ -42,9 +48,11 @@ ENV GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
 
 ARG TEMP_PATH=/tmp/resources
 
-RUN mkdir -p ${TEMP_PATH} && \
-    mkdir -p ${GEOSERVER_DATA_DIR} && \
-    mkdir -p ${GEOSERVER_LOG_DIR}
+RUN mkdir -p "${TEMP_PATH}" && \
+    mkdir -p "${GEOSERVER_DATA_DIR}" && \
+    mkdir -p "${GEOSERVER_LOG_DIR}"
+
+COPY ./scripts /
 
 # Install extra fonts to use with sld font markers
 RUN apt-get update && \
@@ -62,7 +70,7 @@ RUN apt-get update && \
         libnetcdf11 \
         libnetcdf-c++4 \
         netcdf-bin \
-        dnsutils
+        gettext-base
 
 # Copy resources
 # Install Google Noto fonts
@@ -98,7 +106,8 @@ RUN FILENAME="geoserver-${GEOSERVER_VERSION}-bin.zip" && \
     rm -rf ${GEOSERVER_HOME}/data_dir/demo && \
     rm -rf ${GEOSERVER_HOME}/data_dir/gwc-layers && \
     rm -rf ${GEOSERVER_HOME}/data_dir/layergroups && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/workspaces
+    rm -rf ${GEOSERVER_HOME}/data_dir/workspaces && \
+    mv -f /web.xml ${GEOSERVER_HOME}/webapps/geoserver/WEB-INF/web.xml
 
 
 # Install Marlin
@@ -184,8 +193,6 @@ RUN rm -fr ${TEMP_PATH} && \
     chown -R geoserver:geoserver "${GEOSERVER_LOG_DIR}"
 
 USER geoserver
-
-COPY ./scripts /
 
 EXPOSE ${GEOSERVER_PORT}
 
