@@ -4,7 +4,15 @@ services:
   geoserver:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - -DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+      - GEOSERVER_PORT
+      - HAZELCAST_PORT
+      - CLUSTER_NAME
+      - CLUSTER_PASSWORD
+      - SYNC_MODE
+      - SYNC_DELAY
+      - SESSION_STICKY
+      - CLUSTER_DISCOVERY_URL
+      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
       - postgres-net

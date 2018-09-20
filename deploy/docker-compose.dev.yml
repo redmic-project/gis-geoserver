@@ -2,6 +2,10 @@ version: '3.5'
 
 services:
   geoserver:
+    ports:
+      - target: ${GEOSERVER_PORT}
+        published: 8095
+        mode: host
     deploy:
       mode: replicated
       replicas: 1

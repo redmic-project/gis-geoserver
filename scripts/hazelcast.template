@@ -14,11 +14,11 @@
   </properties>
 
   <network>
-    <port auto-increment="true">${HAZELCAST_PORT}</port>
+    <port auto-increment="false">${HAZELCAST_PORT}</port>
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true">
-        <hostname>geoserver</hostname>
+        <hostname>${CLUSTER_DISCOVERY_URL}</hostname>
       </tcp-ip>
     </join>
   </network>
