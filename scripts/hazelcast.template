@@ -17,11 +17,14 @@
     <port auto-increment="false">${HAZELCAST_PORT}</port>
     <join>
       <multicast enabled="false"></multicast>
-      <tcp-ip enabled="true">
+      <tcp-ip enabled="true" connection-timeout-seconds="30">
         <interface>10.*.*.*</interface>
         ${CLUSTER_NODES_IPS_TAGS}
       </tcp-ip>
     </join>
+    <interfaces enabled="true">
+      <interface>10.*.*.*</interface>
+    </interfaces>
   </network>
 
   <!-- The WPS status map -->

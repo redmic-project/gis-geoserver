@@ -26,7 +26,7 @@ do
 	if [ "${nodeIp}" == "${myIp}" ];then
 		continue;
 	fi
-	clusterNodesIps="${clusterNodesIps}<hostname>${nodeIp}</hostname>"
+	clusterNodesIps="${clusterNodesIps}<member>${nodeIp}</member>"
 done
 export CLUSTER_NODES_IPS_TAGS="${clusterNodesIps}"
 
