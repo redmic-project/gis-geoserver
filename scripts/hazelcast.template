@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-2.3.xsd"
-           xmlns="http://www.hazelcast.com/schema/config"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.hazelcast.com/schema/config http://www.hazelcast.com/schema/config/hazelcast-config-3.3.xsd"
+  xmlns="http://www.hazelcast.com/schema/config">
+
   <group>
     <name>${CLUSTER_NAME}</name>
     <password>${CLUSTER_PASSWORD}</password>
@@ -16,7 +17,7 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true" connection-timeout-seconds="30">
-        <member-list>${CLUSTER_NODES_IPS_TAGS}</member-list>
+        <members>${CLUSTER_NODES_IPS_TAGS}</members>
       </tcp-ip>
     </join>
     <interfaces enabled="true">

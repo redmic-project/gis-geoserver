@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]
 then
 	echo "Data dir is empty, creating data folders structure"
@@ -18,14 +16,8 @@ echo "Discovering other nodes in cluster..."
 serviceNodesIps=$(dig ${CLUSTER_DISCOVERY_URL} +short)
 echo "${serviceNodesIps}"
 
-myIp=$(dig ${HOSTNAME} +short)
-echo "My IP: ${myIp}"
-
 for nodeIp in ${serviceNodesIps}
 do
-	if [ "${nodeIp}" == "${myIp}" ];then
-		continue;
-	fi
 	clusterNodesIps="${clusterNodesIps}<member>${nodeIp}</member>"
 done
 export CLUSTER_NODES_IPS_TAGS="${clusterNodesIps}"
