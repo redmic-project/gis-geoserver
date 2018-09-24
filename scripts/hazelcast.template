@@ -18,6 +18,7 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true">
+        <interface>10.*.*.*</interface>
         ${CLUSTER_NODES_IPS_TAGS}
       </tcp-ip>
     </join>
