@@ -18,7 +18,6 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true" connection-timeout-seconds="30">
-        <interface>10.*.*.*</interface>
         ${CLUSTER_NODES_IPS_TAGS}
       </tcp-ip>
     </join>
