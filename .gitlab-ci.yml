@@ -60,7 +60,7 @@ deploy-geoserver-dev:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver
-    STATUS_CHECK_DELAY: 180
+    STATUS_CHECK_DELAY: 300
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
@@ -85,7 +85,7 @@ deploy-geoserver-supporting-branch:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver
-    STATUS_CHECK_DELAY: 180
+    STATUS_CHECK_DELAY: 300
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
@@ -113,7 +113,7 @@ deploy-geoserver-pro:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver
-    STATUS_CHECK_DELAY: 180
+    STATUS_CHECK_DELAY: 300
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml

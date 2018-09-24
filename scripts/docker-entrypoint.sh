@@ -36,7 +36,7 @@ clusterTemplateName="cluster"
 hazelcastTemplateName="hazelcast"
 
 envsubst < /${clusterTemplateName}.template > ${GEOSERVER_DATA_DIR}/cluster/${clusterTemplateName}.properties
-envsubst < /${hazelcastTemplateName}.template > ${GEOSERVER_DATA_DIR}/cluster/${hazelcastTemplateName}.properties
+envsubst < /${hazelcastTemplateName}.template > ${GEOSERVER_DATA_DIR}/cluster/${hazelcastTemplateName}.xml
 
 export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} -DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION}"
 
