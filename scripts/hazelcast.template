@@ -18,8 +18,11 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true" connection-timeout-seconds="30">
-        ${CLUSTER_NODES_IPS_TAGS}
+        <member-list>${CLUSTER_NODES_IPS_TAGS}</member-list>
       </tcp-ip>
     </join>
+    <interfaces enabled="true">
+      <interface>${CLUSTER_NETWORK_INTERFACE_IP}</interface>
+    </interfaces>
   </network>
 </hazelcast>

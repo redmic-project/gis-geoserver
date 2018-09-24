@@ -12,6 +12,7 @@ services:
       - SYNC_DELAY
       - SESSION_STICKY
       - CLUSTER_DISCOVERY_URL
+      - CLUSTER_NETWORK_INTERFACE_IP
       - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
