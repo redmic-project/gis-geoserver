@@ -193,7 +193,7 @@ RUN rm -fr ${TEMP_PATH} && \
 
 USER geoserver
 
-EXPOSE ${GEOSERVER_PORT}
+EXPOSE ${GEOSERVER_PORT} ${HAZELCAST_PORT}
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

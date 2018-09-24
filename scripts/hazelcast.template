@@ -21,17 +21,5 @@
         ${CLUSTER_NODES_IPS_TAGS}
       </tcp-ip>
     </join>
-    <interfaces enabled="true">
-      <interface>10.*.*.*</interface>
-    </interfaces>
   </network>
-
-  <!-- The WPS status map -->
-  <map name="wpsExecutionStatusMap">
-    <indexes>
-      <!-- Add indexes to support the two most common queries -->
-      <index ordered="false">executionId</index>
-      <index ordered="true">completionTime</index>
-    </indexes>
-  </map>
 </hazelcast>
