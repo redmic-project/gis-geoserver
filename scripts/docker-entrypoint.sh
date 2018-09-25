@@ -16,6 +16,10 @@ echo "Discovering other nodes in cluster..."
 serviceNodesIps=$(dig ${CLUSTER_DISCOVERY_URL} +short)
 echo "${serviceNodesIps}"
 
+myIp=$(dig ${HOSTNAME} +short)
+echo "My IP: ${myIp}"
+export MY_IP="${myIp}"
+
 for nodeIp in ${serviceNodesIps}
 do
 	clusterNodesIps="${clusterNodesIps}<member>${nodeIp}</member>"

@@ -13,6 +13,7 @@
   </properties>
 
   <network>
+    <public-address>${MY_IP}</public-address>
     <port auto-increment="false" port-count="100">${HAZELCAST_PORT}</port>
     <outbound-ports>
       <ports>${HAZELCAST_OUTBOUND_PORTS_RANGE}</ports>
@@ -20,7 +21,6 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true" connection-timeout-seconds="30">
-        <member>127.0.0.1</member>
         ${CLUSTER_NODES_IPS_TAGS}
       </tcp-ip>
     </join>
