@@ -20,10 +20,8 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true" connection-timeout-seconds="30">
-        <members>
-          <member>127.0.0.1</member>
-          ${CLUSTER_NODES_IPS_TAGS}
-        </members>
+        <member>127.0.0.1</member>
+        ${CLUSTER_NODES_IPS_TAGS}
       </tcp-ip>
     </join>
     <interfaces enabled="true">
