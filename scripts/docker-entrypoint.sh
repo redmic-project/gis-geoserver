@@ -29,7 +29,7 @@ export CLUSTER_NODES_IPS_TAGS="${clusterNodesIps}"
 
 export HAZELCAST_OUTBOUND_PORTS_RANGE=$((${HAZELCAST_PORT} + 101))-$((${HAZELCAST_PORT} + 201))
 
-clusterDir="${GEOSERVER_DATA_DIR}/cluster-${myIp}"
+clusterDir="${GEOSERVER_DATA_DIR}/cluster"
 clusterTemplateName="cluster"
 hazelcastTemplateName="hazelcast"
 
@@ -39,7 +39,6 @@ envsubst < /${clusterTemplateName}.template > ${clusterDir}/${clusterTemplateNam
 envsubst < /${hazelcastTemplateName}.template > ${clusterDir}/${hazelcastTemplateName}.xml
 
 export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} \
-	-DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION} \
-	-DHAZELCAST_CONFIG_DIR=${clusterDir}"
+	-DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION}"
 
 exec "$@"
