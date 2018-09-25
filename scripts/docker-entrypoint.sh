@@ -12,6 +12,8 @@ then
 	rm -rf "${GEOSERVER_HOME}/data_dir"
 fi
 
+sleep 10
+
 echo "Discovering other nodes in cluster..."
 serviceNodesIps=$(dig ${CLUSTER_DISCOVERY_URL} +short)
 echo "${serviceNodesIps}"
