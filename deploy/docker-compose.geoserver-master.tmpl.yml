@@ -1,0 +1,38 @@
+version: '3.5'
+
+services:
+  geoserver-master:
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    environment:
+      - GEOSERVER_PORT
+      - GEOSERVER_USER
+      - GEOSERVER_PASS
+      - SLAVE_SERVICE_NAME
+      - SLAVES_MANAGEMENT_DELAY
+      - SLAVES_MANAGEMENT_INTERVAL
+      - SLAVE_MANAGEMENT_TIMEOUT
+      - ROLE=master
+      - SWARM_MODE=true
+      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+    networks:
+      - gis-net
+      - postgres-net
+      - traefik-net
+    volumes:
+      - geoserver-vol:/var/geoserver/data
+    healthcheck:
+      test: wget --spider -S -t 3 http://localhost:${GEOSERVER_PORT}/geoserver
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 4m
+
+networks:
+  gis-net:
+    external: true
+
+  postgres-net:
+    external: true
+
+  traefik-net:
+    external: true

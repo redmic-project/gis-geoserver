@@ -1,0 +1,31 @@
+version: '3.5'
+
+services:
+  geoserver-slave:
+    deploy:
+      mode: replicated
+      replicas: 3
+      labels:
+        traefik.port: "${GEOSERVER_PORT}"
+        traefik.docker.network: traefik-net
+        traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
+        traefik.backend: geoserver-slave
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        delay: 1m
+        window: 3m
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 2G
+        reservations:
+          memory: 1639M
+
+volumes:
+  geoserver-vol:
+    name: "geoserver-vol"
+    driver: "cloudstor:aws"
+    driver_opts:
+      backing: shared
