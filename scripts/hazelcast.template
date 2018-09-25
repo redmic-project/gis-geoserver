@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.hazelcast.com/schema/config http://www.hazelcast.com/schema/config/hazelcast-config-3.3.xsd"
+  xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.3.xsd"
   xmlns="http://www.hazelcast.com/schema/config">
 
   <group>
@@ -13,11 +13,17 @@
   </properties>
 
   <network>
-    <port auto-increment="false">${HAZELCAST_PORT}</port>
+    <port auto-increment="false" port-count="100">${HAZELCAST_PORT}</port>
+    <outbound-ports>
+      <ports>${HAZELCAST_OUTBOUND_PORTS_RANGE}</ports>
+    </outbound-ports>
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true" connection-timeout-seconds="30">
-        <members>${CLUSTER_NODES_IPS_TAGS}</members>
+        <members>
+          <member>127.0.0.1</member>
+          ${CLUSTER_NODES_IPS_TAGS}
+        </members>
       </tcp-ip>
     </join>
     <interfaces enabled="true">

@@ -22,6 +22,8 @@ do
 done
 export CLUSTER_NODES_IPS_TAGS="${clusterNodesIps}"
 
+export HAZELCAST_OUTBOUND_PORTS_RANGE=$((${HAZELCAST_PORT} + 101))-$((${HAZELCAST_PORT} + 201))
+
 mkdir -p ${GEOSERVER_DATA_DIR}/cluster
 
 clusterTemplateName="cluster"
