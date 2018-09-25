@@ -40,6 +40,6 @@ envsubst < /${hazelcastTemplateName}.template > ${clusterDir}/${hazelcastTemplat
 
 export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} \
 	-DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION} \
-	-Dhazelcast.config.dir=${clusterDir}"
+	-DHAZELCAST_CONFIG_DIR=${clusterDir}"
 
 exec "$@"
