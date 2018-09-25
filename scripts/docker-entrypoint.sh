@@ -12,32 +12,6 @@ then
 	rm -rf "${GEOSERVER_HOME}/data_dir"
 fi
 
-sleep 10
-
-echo "Discovering other nodes in cluster..."
-serviceNodesIps=$(dig ${CLUSTER_DISCOVERY_URL} +short)
-echo "${serviceNodesIps}"
-
-myIp=$(dig ${HOSTNAME} +short)
-echo "My IP: ${myIp}"
-export MY_IP="${myIp}"
-
-for nodeIp in ${serviceNodesIps}
-do
-	clusterNodesIps="${clusterNodesIps}<member>${nodeIp}</member>"
-done
-export CLUSTER_NODES_IPS_TAGS="${clusterNodesIps}"
-
-export HAZELCAST_OUTBOUND_PORTS_RANGE=$((${HAZELCAST_PORT} + 101))-$((${HAZELCAST_PORT} + 201))
-
-mkdir -p ${GEOSERVER_DATA_DIR}/cluster
-
-clusterTemplateName="cluster"
-hazelcastTemplateName="hazelcast"
-
-envsubst < /${clusterTemplateName}.template > ${GEOSERVER_DATA_DIR}/cluster/${clusterTemplateName}.properties
-envsubst < /${hazelcastTemplateName}.template > ${GEOSERVER_DATA_DIR}/cluster/${hazelcastTemplateName}.xml
-
-export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} -DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION}"
+/discovery.sh & disown
 
 exec "$@"
