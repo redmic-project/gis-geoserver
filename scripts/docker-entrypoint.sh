@@ -3,7 +3,7 @@
 if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]
 then
 	echo "Copy data_dir"
-	mv "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}/"
+	cp "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}/"
 	rm -rf ${GEOSERVER_DATA_DIR}/workspaces/*
 	rm -rf ${GEOSERVER_DATA_DIR}/layergroups/*
 	rm -rf ${GEOSERVER_DATA_DIR}/data/*
