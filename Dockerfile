@@ -92,14 +92,7 @@ RUN FILENAME="geoserver-${GEOSERVER_VERSION}-bin.zip" && \
         curl -L ${URL}/${FILENAME} -o ${TEMP_PATH}/${FILENAME} ; \
     fi; \
     unzip -o ${TEMP_PATH}/${FILENAME} -d /opt/ && \
-    mv -v ${GEOSERVER_HOME}* ${GEOSERVER_HOME} && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/coverages && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/data && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/demo && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/gwc-layers && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/layergroups && \
-    rm -rf ${GEOSERVER_HOME}/data_dir/workspaces
-
+    mv -v ${GEOSERVER_HOME}* ${GEOSERVER_HOME}
 
 # Install Marlin
 ARG MARLIN_VERSION=0.9.1
