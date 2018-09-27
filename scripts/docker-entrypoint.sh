@@ -2,12 +2,9 @@
 
 if [ -z "$(ls -A ${GEOSERVER_DATA_DIR})" ]
 then
-	echo "Copy data_dir"
-	cp "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}/"
-	rm -rf ${GEOSERVER_DATA_DIR}/workspaces/*
-	rm -rf ${GEOSERVER_DATA_DIR}/layergroups/*
-	rm -rf ${GEOSERVER_DATA_DIR}/data/*
-	rm -rf ${GEOSERVER_DATA_DIR}/coverages/*
+	echo "Move data_dir"
+
+	mv -v "${GEOSERVER_HOME}/data_dir/"* "${GEOSERVER_DATA_DIR}/"
 fi
 
 export JAVA_OPTS="${JAVA_OPTS} ${GEOSERVER_OPTS} -DGEOSERVER_LOG_LOCATION=${GEOSERVER_LOG_LOCATION}"
