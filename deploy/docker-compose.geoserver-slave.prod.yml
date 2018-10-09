@@ -9,6 +9,7 @@ services:
         traefik.port: "${GEOSERVER_PORT}"
         traefik.docker.network: traefik-net
         traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
+        traefik.frontend.headers.customResponseHeaders: "Access-Control-Allow-Origin: *"
         traefik.backend: geoserver-slave
       placement:
         constraints:
