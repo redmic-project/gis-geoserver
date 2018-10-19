@@ -26,6 +26,27 @@ services:
       timeout: 10s
       retries: 3
       start_period: 4m
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        traefik.port: "${GEOSERVER_PORT}"
+        traefik.docker.network: traefik-net
+        traefik.admin.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
+        traefik.root.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver"
+        traefik.backend: geoserver-master
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 1m
+        window: 3m
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          memory: 820M
 
 networks:
   gis-net:
