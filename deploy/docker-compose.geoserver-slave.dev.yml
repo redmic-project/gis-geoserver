@@ -3,20 +3,10 @@ version: '3.5'
 services:
   geoserver-slave:
     deploy:
-      mode: replicated
       replicas: 1
-      labels:
-        traefik.port: "${GEOSERVER_PORT}"
-        traefik.docker.network: traefik-net
-        traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
-        traefik.frontend.headers.customResponseHeaders: "Access-Control-Allow-Origin: *"
-        traefik.backend: geoserver-slave
-      restart_policy:
-        delay: 1m
-        window: 3m
       resources:
         limits:
-          cpus: '0.75'
+          cpus: '1'
           memory: 1G
         reservations:
           memory: 820M

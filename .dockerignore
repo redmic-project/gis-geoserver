@@ -1,5 +1,6 @@
-resources/*
-!resources/*.zip
-!resources/*.jar
-!resources/*.deb
-!resources/*.tar.gz
+*
+!/resources/*.zip
+!/resources/*.jar
+!/resources/*.deb
+!/resources/*.tar.gz
+!/scripts
