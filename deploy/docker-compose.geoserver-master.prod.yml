@@ -1,0 +1,8 @@
+version: '3.5'
+
+volumes:
+  geoserver-vol:
+    name: geoserver-vol
+    driver: "cloudstor:aws"
+    driver_opts:
+      backing: shared
