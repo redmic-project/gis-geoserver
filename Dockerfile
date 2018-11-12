@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 		-Dorg.geotools.shapefile.datetime=true \
 		-XX:+UnlockExperimentalVMOptions \
 		-XX:MaxRAMFraction=2 \
-		-XX:+AggressiveOPT \
+		-XX:+AggressiveOpts \
 		-XX:+UseCGroupMemoryLimitForHeap \
 		-Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
 	GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
