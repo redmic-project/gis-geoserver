@@ -65,12 +65,14 @@ deploy-geoserver-master-dev:
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.dev.yml
     GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_ADMIN_SUBDOMAIN}
+    GEOSERVER_PASS: ${DEV_GEOSERVER_PASS}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   script:
     - create-nets.sh gis-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      GEOSERVER_PASS=${GEOSERVER_PASS}
   environment:
     name: geoserver-master-dev
     url: https://${DEV_GEOSERVER_ADMIN_SUBDOMAIN}.${DEV_PUBLIC_HOSTNAME}
@@ -115,12 +117,14 @@ deploy-geoserver-master-supporting-branch:
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.dev.yml
     GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_ADMIN_SUBDOMAIN}
+    GEOSERVER_PASS: ${DEV_GEOSERVER_PASS}
     PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
   script:
     - create-nets.sh gis-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      GEOSERVER_PASS=${GEOSERVER_PASS}
   environment:
     name: geoserver-master-dev
     url: https://${DEV_GEOSERVER_ADMIN_SUBDOMAIN}.${DEV_PUBLIC_HOSTNAME}
@@ -171,12 +175,14 @@ deploy-geoserver-master-pro:
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.prod.yml
     GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_ADMIN_SUBDOMAIN}
+    GEOSERVER_PASS: ${PRO_GEOSERVER_PASS}
     PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
   script:
     - create-nets.sh gis-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      GEOSERVER_PASS=${GEOSERVER_PASS}
   environment:
     name: geoserver-master-pro
     url: https://${PRO_GEOSERVER_ADMIN_SUBDOMAIN}.${PRO_PUBLIC_HOSTNAME}

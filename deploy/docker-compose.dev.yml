@@ -1,0 +1,29 @@
+version: '3.5'
+
+services:
+  geoserver:
+    ports:
+      - target: ${GEOSERVER_PORT}
+        published: 8095
+        mode: host
+    deploy:
+      mode: replicated
+      replicas: 2
+      labels:
+        traefik.port: "${GEOSERVER_PORT}"
+        traefik.docker.network: traefik-net
+        traefik.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
+        traefik.backend: geoserver
+      restart_policy:
+        delay: 1m
+        window: 3m
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1G
+        reservations:
+          memory: 820M
+
+volumes:
+  geoserver-vol:
+    name: geoserver-vol

@@ -10,27 +10,20 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 	GEOSERVER_DATA_DIR="/var/geoserver/data" \
 	GEOSERVER_HOME="/opt/geoserver" \
 	GEOSERVER_LOG_DIR="/var/log/geoserver" \
-	GEOSERVER_OPTS="-server \
-		-XX:+AggressiveOpts \
-		-XX:+HeapDumpOnOutOfMemoryError \
-		-XX:MaxNewSize=256m \
-		-XX:NewSize=256m \
-		-XX:MaxMetaspaceSize=128m \
-		-XX:SurvivorRatio=12 \
-		-XX:MaxTenuringThreshold=0 \
-		-XX:+UseConcMarkSweepGC \
-		-XX:+CMSIncrementalMode \
-		-XX:+CMSIncrementalPacing \
-		-XX:+CMSClassUnloadingEnabled \
-		-XX:+DisableExplicitGC \
-		-XX:+UseTLAB \
-		-XX:SoftRefLRUPolicyMSPerMB=36000 \
+	GEOSERVER_OPTS="-Djava.awt.headless=true \
+		-server \
 		-XX:PerfDataSamplingInterval=500 \
-		-XX:+UnlockExperimentalVMOptions \
-		-XX:+UseCGroupMemoryLimitForHeap \
-		-XX:MaxRAMFraction=2 \
-		-Djava.awt.headless=true \
 		-Dorg.geotools.referencing.forceXY=true \
+		-XX:SoftRefLRUPolicyMSPerMB=36000  \
+		-XX:NewRatio=2 \
+		-XX:+CMSClassUnloadingEnabled \
+		-Djavax.servlet.request.encoding=UTF-8 \
+		-Djavax.servlet.response.encoding=UTF-8 \
+		-Dorg.geotools.shapefile.datetime=true \
+		-XX:+UnlockExperimentalVMOptions \
+		-XX:MaxRAMFraction=2 \
+		-XX:+AggressiveOpts \
+		-XX:+UseCGroupMemoryLimitForHeap \
 		-Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
 	GOOGLE_FONTS="Open%20Sans Roboto Lato Ubuntu" \
 	NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
