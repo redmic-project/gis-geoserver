@@ -21,7 +21,6 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 		-Djavax.servlet.response.encoding=UTF-8 \
 		-Dorg.geotools.shapefile.datetime=true \
 		-XX:+UnlockExperimentalVMOptions \
-		-XX:MaxRAMFraction=2 \
 		-XX:+AggressiveOpts \
 		-XX:+UseCGroupMemoryLimitForHeap \
 		-Djava.library.path=/usr/share/java:/opt/libjpeg-turbo/lib64:/usr/lib/jni" \
