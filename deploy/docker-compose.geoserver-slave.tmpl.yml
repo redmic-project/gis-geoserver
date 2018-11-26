@@ -12,7 +12,7 @@ services:
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
-      test:  curl --fail http://localhost:${GEOSERVER_PORT}/geoserver || exit 1
+      test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
       interval: 30s
       timeout: 10s
       retries: 3
