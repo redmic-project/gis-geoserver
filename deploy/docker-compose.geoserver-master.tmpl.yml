@@ -21,7 +21,7 @@ services:
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
-      test: wget --spider -S -t 3 http://localhost:${GEOSERVER_PORT}/geoserver
+      test: curl --fail http://localhost:${GEOSERVER_PORT}/geoserver || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
