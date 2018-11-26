@@ -16,7 +16,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 4m
+      start_period: 5m
     deploy:
       mode: replicated
       labels:
