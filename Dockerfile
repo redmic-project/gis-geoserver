@@ -99,7 +99,8 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 		libnetcdf13 \
 		libnetcdf-c++4 \
 		netcdf-bin \
-		dnsutils && \
+		dnsutils \
+		locales && \
 	#
 	# Install Google Noto fonts
 	#
@@ -204,10 +205,17 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	#
 	mv /libs/*.jar ${JAVA_HOME}/lib/security/ && \
 	#
+	# Install locale
+	sed -i -e 's/# es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen && \
+	#
+	#
 	# Clean
 	#
 	rm -rf ${TEMP_PATH} && \
 	rm -rf /var/lib/apt/lists/*
+
+ENV LANG="es_ES.utf8"
 
 EXPOSE ${GEOSERVER_PORT}
 
