@@ -25,7 +25,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5m
+      start_period: 2m
     deploy:
       mode: replicated
       replicas: 1
