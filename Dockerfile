@@ -124,7 +124,10 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	#
 	URL="https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz" && \
 	curl -fSL "${URL}" -o tomcat.tar.gz && \
-	tar -xvf tomcat.tar.gz --strip-components=1 && \
+	if ! tar -xvf tomcat.tar.gz --strip-components=1 ; \
+	then \
+		exit 1; \
+	fi; \
 	rm bin/*.bat && \
 	rm tomcat.tar.gz* && \
 	rm -rf ${CATALINA_HOME}/webapps/* && \
@@ -134,7 +137,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	FILENAME="geoserver-${GEOSERVER_VERSION}-war.zip" && \
 	URL="https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}" && \
 	curl -L ${URL}/${FILENAME} -o ${TEMP_PATH}/${FILENAME} && \
-	unzip -o ${TEMP_PATH}/${FILENAME} -d ${TEMP_PATH} && \
+	if ! unzip -o ${TEMP_PATH}/${FILENAME} -d ${TEMP_PATH} ; \
+	then \
+		echo "Download failed - Filename: ${FILENAME}" && \
+		cat "${TEMP_PATH}/${FILENAME}" && \
+		exit 1; \
+	fi; \
 	unzip -o ${TEMP_PATH}/geoserver.war -d ${GEOSERVER_HOME} && \
 	mv /context.xml ${GEOSERVER_HOME}/META-INF/context.xml && \
 	rm -rf ${GEOSERVER_HOME}/data/coverages/* \
@@ -157,7 +165,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	TURBO_JPEG_FILENAME=$(echo "libjpeg-turbo-official_${TURBO_JPEG_VERSION}_amd64.deb") && \
 	URL="https://sourceforge.net/projects/libjpeg-turbo/files/${TURBO_JPEG_VERSION}/${TURBO_JPEG_FILENAME}" && \
 	curl -L ${URL} --output ${TEMP_PATH}/${TURBO_JPEG_FILENAME} && \
-	dpkg -i ${TEMP_PATH}/${TURBO_JPEG_FILENAME} && \
+	if ! dpkg -i ${TEMP_PATH}/${TURBO_JPEG_FILENAME} ; \
+	then \
+		echo "Download failed - Filename: ${TURBO_JPEG_FILENAME}" && \
+		cat "${TEMP_PATH}/${TURBO_JPEG_FILENAME}" && \
+		exit 1; \
+	fi; \
 	#
 	# Install JAI
 	#
@@ -165,7 +178,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	JAI_FILENAME=$(echo "jai-${JAI_VERSION}-lib-linux-amd64.tar.gz") && \
 	URL="http://download.java.net/media/jai/builds/release/${JAI_VERSION}/${JAI_FILENAME}" && \
 	curl -L ${URL} --output ${TEMP_PATH}/${JAI_FILENAME} && \
-	tar xvfz ${TEMP_PATH}/${JAI_FILENAME} -C ${TEMP_PATH} && \
+	if ! tar xvfz ${TEMP_PATH}/${JAI_FILENAME} -C ${TEMP_PATH} ; \
+	then \
+		echo "Download failed - Filename: ${JAI_FILENAME}" && \
+		cat "${TEMP_PATH}/${JAI_FILENAME}" && \
+		exit 1; \
+	fi; \
 	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.jar ${JAVA_HOME}/lib/ext/ && \
 	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.so ${JAVA_HOME}/lib/amd64/ && \
 	#
@@ -174,7 +192,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	IMAGE_IO_FILENAME="jai_imageio-${IMAGE_IO_VERSION}-lib-linux-amd64.tar.gz" && \
 	URL="http://download.java.net/media/jai-imageio/builds/release/1.1/${IMAGE_IO_FILENAME}" && \
 	curl -L ${URL} --output ${TEMP_PATH}/${IMAGE_IO_FILENAME} && \
-	tar xvfz ${TEMP_PATH}/${IMAGE_IO_FILENAME} -C ${TEMP_PATH} && \
+	if ! tar xvfz ${TEMP_PATH}/${IMAGE_IO_FILENAME} -C ${TEMP_PATH} ; \
+	then \
+		echo "Download failed - Filename: ${IMAGE_IO_FILENAME}" && \
+		cat "${TEMP_PATH}/${IMAGE_IO_FILENAME}" && \
+		exit 1; \
+	fi; \
 	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.jar ${JAVA_HOME}/lib/ext/ && \
 	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.so ${JAVA_HOME}/lib/amd64/ && \
 	#
@@ -185,7 +208,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	do \
 		FILENAME="geoserver-${GEOSERVER_VERSION}-${PLUGIN}-plugin.zip" && \
 		curl -L "${URL}/${FILENAME}" -o "${TEMP_PATH}/${FILENAME}" && \
-		unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/WEB-INF/lib/" ; \
+		if ! unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/WEB-INF/lib/" ; \
+		then \
+			echo "Download failed - Filename: ${FILENAME}" && \
+			cat "${TEMP_PATH}/${FILENAME}" && \
+			exit 1; \
+		fi; \
 	done && \
 	#
 	# Install GeoServer Community Plugins
@@ -195,7 +223,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	do \
 		FILENAME="geoserver-${GEOSERVER_MAJOR_VERSION}-SNAPSHOT-${PLUGIN}-plugin.zip" && \
 		curl -L ${URL}/${FILENAME} -o ${TEMP_PATH}/${FILENAME} && \
-		unzip -o ${TEMP_PATH}/${FILENAME} -d ${GEOSERVER_HOME}/WEB-INF/lib/ ; \
+		if ! unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/WEB-INF/lib/" ; \
+		then \
+			echo "Download failed - Filename: ${FILENAME}" && \
+			cat "${TEMP_PATH}/${FILENAME}" && \
+			exit 1; \
+		fi; \
 	done && \
 	rm ${GEOSERVER_HOME}/WEB-INF/lib/imageio-ext-gdal-bindings-*.jar && \
 	ln -s /usr/share/java/gdal.jar \
