@@ -53,66 +53,13 @@ container-scanning:
   artifacts:
     paths: [gl-sast-container-report.json]
 
-deploy-geoserver-master-dev:
+deploy-geoserver-master-supporting-branch-develop:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver-master
-    STATUS_CHECK_DELAY: 400
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.dev.yml
-    GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_ADMIN_SUBDOMAIN}
-    GEOSERVER_PASS: ${DEV_GEOSERVER_PASS}
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  script:
-    - create-nets.sh gis-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-      GEOSERVER_PASS=${GEOSERVER_PASS}
-  environment:
-    name: geoserver-master-dev
-    url: https://${DEV_GEOSERVER_ADMIN_SUBDOMAIN}.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - dev
-  when: manual
-
-deploy-geoserver-slave-dev:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: gis
-    SERVICES_TO_CHECK: gis_geoserver-slave
-    STATUS_CHECK_DELAY: 400
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.geoserver-slave.tmpl.yml:docker-compose.geoserver-slave.dev.yml
-    GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_SUBDOMAIN}
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  script:
-    - create-nets.sh gis-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-  environment:
-    name: geoserver-slave-dev
-    url: https://${DEV_GEOSERVER_SUBDOMAIN}.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - dev
-  when: manual
-
-deploy-geoserver-master-supporting-branch:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: gis
-    SERVICES_TO_CHECK: gis_geoserver-master
-    STATUS_CHECK_DELAY: 400
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.dev.yml
@@ -132,17 +79,15 @@ deploy-geoserver-master-supporting-branch:
     - branches
   except:
     - master
-    - dev
   when: manual
 
-deploy-geoserver-slave-supporting-branch:
+deploy-geoserver-slave-supporting-branch-develop:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver-slave
-    STATUS_CHECK_DELAY: 400
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-slave.tmpl.yml:docker-compose.geoserver-slave.dev.yml
@@ -160,17 +105,15 @@ deploy-geoserver-slave-supporting-branch:
     - branches
   except:
     - master
-    - dev
   when: manual
 
-deploy-geoserver-master-pro:
+deploy-geoserver-master-stable-branch-production:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver-master
-    STATUS_CHECK_DELAY: 400
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.prod.yml
@@ -190,14 +133,13 @@ deploy-geoserver-master-pro:
     - master
   when: manual
 
-deploy-geoserver-slave-pro:
+deploy-geoserver-slave-stable-branch-production:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: gis
     SERVICES_TO_CHECK: gis_geoserver-slave
-    STATUS_CHECK_DELAY: 400
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.geoserver-slave.tmpl.yml:docker-compose.geoserver-slave.prod.yml
