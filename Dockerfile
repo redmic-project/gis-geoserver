@@ -185,7 +185,12 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	do \
 		FILENAME="geoserver-${GEOSERVER_VERSION}-${PLUGIN}-plugin.zip" && \
 		curl -L "${URL}/${FILENAME}" -o "${TEMP_PATH}/${FILENAME}" && \
-		unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/WEB-INF/lib/" ; \
+		if ! unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/WEB-INF/lib/"; \
+		then \
+			echo "Download failed - Filename: ${FILENAME}" && \
+		    cat "${TEMP_PATH}/${FILENAME}" && \
+			exit 1; \
+		fi; \
 	done && \
 	#
 	# Install GeoServer Community Plugins
