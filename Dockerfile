@@ -96,7 +96,6 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 		libtcnative-1 \
 		libgdal-java \
 		libgdal20 \
-		libgdal-dev \
 		libnetcdf13 \
 		libnetcdf-c++4 \
 		netcdf-bin \
