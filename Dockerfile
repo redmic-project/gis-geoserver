@@ -91,6 +91,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	apt-get update && \
 	apt-get install -y --no-install-recommends \
 		fonts-cantarell \
+		fonts-lyx \
 		openssl \
 		unzip \
 		libtcnative-1 \
@@ -246,6 +247,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	# Clean
 	#
 	rm -rf ${TEMP_PATH} && \
+	rm -rf /usr/share/doc/fonts-* && \
 	rm -rf /var/lib/apt/lists/*
 
 ENV LANG="es_ES.utf8"
