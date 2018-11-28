@@ -55,7 +55,7 @@ ENV MARLIN_VERSION="0.9.3" \
 ENV GEOSERVER_HOME="${CATALINA_HOME}/webapps/geoserver"
 
 ENV GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal netcdf-out" \
-	GEOSERVER_COMMUNITY_PLUGINS="" \
+	GEOSERVER_COMMUNITY_PLUGINS="gwc-s3" \
 	GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
 	GEOSERVER_DATA_DIR="/var/geoserver/data" \
 	GEOSERVER_LOG_DIR="/var/log/geoserver" \
@@ -91,6 +91,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	apt-get update && \
 	apt-get install -y --no-install-recommends \
 		fonts-cantarell \
+		fonts-lyx \
 		openssl \
 		unzip \
 		libtcnative-1 \
@@ -246,6 +247,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	# Clean
 	#
 	rm -rf ${TEMP_PATH} && \
+	rm /usr/share/doc/fonts-* && \
 	rm -rf /var/lib/apt/lists/*
 
 ENV LANG="es_ES.utf8"
