@@ -235,18 +235,6 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	ln -s /usr/share/java/gdal.jar \
 		"${GEOSERVER_HOME}/WEB-INF/lib/imageio-ext-gdal-bindings-${GDAL_VERSION}.jar" && \
 	#
-	# Install ElasticSearch plugin
-	#
-	URL="https://github.com/ngageoint/elasticgeo/releases/download/2.14.0-RC1" && \
-    FILENAME="elasticgeo-2.14.0.zip" && \
-    curl -L ${URL}/${FILENAME} -o ${TEMP_PATH}/${FILENAME} && \
-	if ! unzip -o "${TEMP_PATH}/${FILENAME}" -d "${GEOSERVER_HOME}/WEB-INF/lib/" ; \
-    then \
-		echo "Download failed - Filename: ${FILENAME}" && \
-		cat "${TEMP_PATH}/${FILENAME}" && \
-		exit 1; \
-	fi; \
-	#
 	# Install strong cryptography
 	#
 	mv /libs/*.jar ${JAVA_HOME}/lib/security/ && \
