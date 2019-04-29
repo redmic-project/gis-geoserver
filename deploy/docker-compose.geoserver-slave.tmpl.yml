@@ -9,6 +9,7 @@ services:
       - gis-net
       - postgres-net
       - traefik-net
+      - postgres-vessel-net
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
@@ -34,6 +35,9 @@ networks:
     external: true
 
   postgres-net:
+    external: true
+
+  postgres-vessel-net:
     external: true
 
   traefik-net:

@@ -1,4 +1,4 @@
-FROM sgrio/java-oracle:jdk_8 AS build_apr
+FROM sgrio/java:jdk_8_ubuntu AS build_apr
 
 ENV APR_VERSION="1.6.5" \
 	TOMCAT_NATIVE_VERSION="1.2.18" \
@@ -37,19 +37,19 @@ RUN apt-get update && \
 	make install
 
 
-FROM sgrio/java-oracle:jre_8
+FROM sgrio/java:server_jre_8_ubuntu
 
 LABEL maintainer="info@redmic.es"
 
 ENV MARLIN_VERSION="0.9.3" \
 	TOMCAT_MAJOR="8" \
-	TOMCAT_VERSION="8.5.35" \
+	TOMCAT_VERSION="8.5.40" \
 	JAI_VERSION="1_1_3" \
 	IMAGE_IO_VERSION="1_1" \
 	GDAL_VERSION="2.2.3" \
 	TURBO_JPEG_VERSION="1.5.3" \
 	GEOSERVER_MAJOR_VERSION="2.14" \
-	GEOSERVER_MINOR_VERSION="1" \
+	GEOSERVER_MINOR_VERSION="3" \
 	CATALINA_HOME="/usr/local/tomcat"
 
 ENV GEOSERVER_HOME="${CATALINA_HOME}/webapps/geoserver"
@@ -81,7 +81,6 @@ ENV GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles net
 	NOTO_FONTS="NotoSans-unhinted NotoSerif-unhinted NotoMono-hinted" \
 	GDAL_DATA="/usr/share/gdal/2.2" \
 	TEMP_PATH="/tmp/resources" \
-	JRE_HOME="" \
 	PATH="${CATALINA_HOME}/bin:${PATH}"
 
 COPY ./scripts /
@@ -185,8 +184,8 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 		cat "${TEMP_PATH}/${JAI_FILENAME}" && \
 		exit 1; \
 	fi; \
-	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.jar ${JAVA_HOME}/lib/ext/ && \
-	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.so ${JAVA_HOME}/lib/amd64/ && \
+	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.jar ${JRE_HOME}/lib/ext/ && \
+	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.so ${JRE_HOME}/lib/amd64/ && \
 	#
 	# Install Image IO
 	#
@@ -199,8 +198,8 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 		cat "${TEMP_PATH}/${IMAGE_IO_FILENAME}" && \
 		exit 1; \
 	fi; \
-	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.jar ${JAVA_HOME}/lib/ext/ && \
-	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.so ${JAVA_HOME}/lib/amd64/ && \
+	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.jar ${JRE_HOME}/lib/ext/ && \
+	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.so ${JRE_HOME}/lib/amd64/ && \
 	#
 	# Install GeoServer Plugins
 	#
@@ -237,6 +236,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	#
 	# Install strong cryptography
 	#
+	mkdir -p ${JAVA_HOME}/lib/security/ && \
 	mv /libs/*.jar ${JAVA_HOME}/lib/security/ && \
 	#
 	# Install locale
