@@ -172,34 +172,10 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 		exit 1; \
 	fi; \
 	#
-	# Install JAI
+	# Install Image IO & JAI
 	#
-	rm ${GEOSERVER_HOME}/WEB-INF/lib/jai_*jar && \
-	JAI_FILENAME=$(echo "jai-${JAI_VERSION}-lib-linux-amd64.tar.gz") && \
-	URL="http://download.java.net/media/jai/builds/release/${JAI_VERSION}/${JAI_FILENAME}" && \
-	curl -L ${URL} --output ${TEMP_PATH}/${JAI_FILENAME} && \
-	if ! tar xvfz ${TEMP_PATH}/${JAI_FILENAME} -C ${TEMP_PATH} ; \
-	then \
-		echo "Download failed - Filename: ${JAI_FILENAME}" && \
-		cat "${TEMP_PATH}/${JAI_FILENAME}" && \
-		exit 1; \
-	fi; \
-	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.jar ${JRE_HOME}/lib/ext/ && \
-	mv ${TEMP_PATH}/jai-${JAI_VERSION}/lib/*.so ${JRE_HOME}/lib/amd64/ && \
-	#
-	# Install Image IO
-	#
-	IMAGE_IO_FILENAME="jai_imageio-${IMAGE_IO_VERSION}-lib-linux-amd64.tar.gz" && \
-	URL="http://download.java.net/media/jai-imageio/builds/release/1.1/${IMAGE_IO_FILENAME}" && \
-	curl -L ${URL} --output ${TEMP_PATH}/${IMAGE_IO_FILENAME} && \
-	if ! tar xvfz ${TEMP_PATH}/${IMAGE_IO_FILENAME} -C ${TEMP_PATH} ; \
-	then \
-		echo "Download failed - Filename: ${IMAGE_IO_FILENAME}" && \
-		cat "${TEMP_PATH}/${IMAGE_IO_FILENAME}" && \
-		exit 1; \
-	fi; \
-	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.jar ${JRE_HOME}/lib/ext/ && \
-	mv ${TEMP_PATH}/jai_imageio-${IMAGE_IO_VERSION}/lib/*.so ${JRE_HOME}/lib/amd64/ && \
+	mv /libs/jai/*.jar ${JRE_HOME}/lib/ext/ && \
+	mv /libs/jai/*.so ${JRE_HOME}/lib/amd64/ && \
 	#
 	# Install GeoServer Plugins
 	#
@@ -237,7 +213,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	# Install strong cryptography
 	#
 	mkdir -p ${JAVA_HOME}/lib/security/ && \
-	mv /libs/*.jar ${JAVA_HOME}/lib/security/ && \
+	mv /libs/policy/*.jar ${JAVA_HOME}/lib/security/ && \
 	#
 	# Install locale
 	sed -i -e 's/# es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen && \
