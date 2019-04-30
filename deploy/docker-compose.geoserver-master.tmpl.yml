@@ -18,7 +18,6 @@ services:
       - gis-net
       - postgres-net
       - traefik-net
-      - postgres-vessel-net
     volumes:
       - geoserver-vol:/var/geoserver/data
     healthcheck:
@@ -31,11 +30,10 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        traefik.port: "${GEOSERVER_PORT}"
-        traefik.docker.network: traefik-net
-        traefik.admin.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver"
-        traefik.root.frontend.rule: "Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver"
+        traefik.admin.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: geoserver-master
+        traefik.port: '${GEOSERVER_PORT}'
       placement:
         constraints:
           - node.role == manager
@@ -51,13 +49,13 @@ services:
 
 networks:
   gis-net:
-    external: true
+    name: ${GIS_NET_NAME:-gis-net}
+    attachable: true
 
   postgres-net:
-    external: true
-
-  postgres-vessel-net:
+    name: ${POSTGRES_NET_NAME:-postgres-net}
     external: true
 
   traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
     external: true
