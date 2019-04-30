@@ -1,157 +1,126 @@
+include:
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/packaging.yml'
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/_deployment.yml'
+
 stages:
   - package
   - test-package
   - deploy
 
 variables:
-  DOCKER_DRIVER: overlay2
+  STACK: gis
 
-services:
-  - docker:dind
-
-docker-build-commit-non-master-branches:
-  stage: package
-  image: docker:stable
-  only:
-    - branches
-  except:
-    - master
-  script:
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
-    - docker push ${CI_REGISTRY_IMAGE}
-
-docker-build-commit-master-branch:
-  stage: package
-  image: docker:stable
-  only:
-    - master
-  script:
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
-    - docker push ${CI_REGISTRY_IMAGE}
-
-container-scanning:
-  stage: test-package
-  image: docker:stable
-  allow_failure: true
-  only:
-    - branches
-  script:
-    - docker run -d --name db arminc/clair-db:latest
-    - docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:v2.0.1
-    - apk add -U wget ca-certificates
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
-    - wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
-    - mv clair-scanner_linux_amd64 clair-scanner
-    - chmod +x clair-scanner
-    - touch clair-whitelist.yml
-    - >
-      ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-sast-container-report.json -l clair.log
-      -w clair-whitelist.yml ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} || true
-  artifacts:
-    paths: [gl-sast-container-report.json]
-
-deploy-geoserver-master-supporting-branch-develop:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+.deploy:
   variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: gis
-    SERVICES_TO_CHECK: gis_geoserver-master
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.dev.yml
-    GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_ADMIN_SUBDOMAIN}
-    GEOSERVER_PASS: ${DEV_GEOSERVER_PASS}
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
+    SERVICES_TO_CHECK: ${STACK}_${SERVICE_NAME}
   script:
-    - create-nets.sh gis-net
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
       GEOSERVER_PASS=${GEOSERVER_PASS}
   environment:
-    name: geoserver-master-dev
-    url: https://${DEV_GEOSERVER_ADMIN_SUBDOMAIN}.${DEV_PUBLIC_HOSTNAME}
-  only:
-    - branches
-  except:
-    - master
-  when: manual
+    url: https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}
 
-deploy-geoserver-slave-supporting-branch-develop:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+.deploy-development:
   variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: gis
-    SERVICES_TO_CHECK: gis_geoserver-slave
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.geoserver-slave.tmpl.yml:docker-compose.geoserver-slave.dev.yml
-    GEOSERVER_SUBDOMAIN: ${DEV_GEOSERVER_SUBDOMAIN}
-    PUBLIC_HOSTNAME: ${DEV_PUBLIC_HOSTNAME}
-  script:
-    - create-nets.sh gis-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+    COMPOSE_FILE: docker-compose.${SERVICE_NAME}.tmpl.yml:docker-compose.${SERVICE_NAME}.dev.yml
   environment:
-    name: geoserver-slave-dev
-    url: https://${DEV_GEOSERVER_SUBDOMAIN}.${DEV_PUBLIC_HOSTNAME}
+    name: dev/${SERVICE_NAME}
+
+.deploy-production:
+  variables:
+    COMPOSE_FILE: docker-compose.${SERVICE_NAME}.tmpl.yml:docker-compose.${SERVICE_NAME}.prod.yml
+  environment:
+    name: pro/${SERVICE_NAME}
+
+.deploy-geoserver-master:
+  variables: &deploy-geoserver-master
+    SERVICE_NAME: geoserver-master
+
+.deploy-geoserver-slave:
+  variables: &deploy-geoserver-slave
+    SERVICE_NAME: geoserver-slave
+
+.deploy-geoserver-master-development:
+  extends: .deploy-development
+  variables: *deploy-geoserver-master
+
+.deploy-geoserver-slave-development:
+  extends: .deploy-development
+  variables: *deploy-geoserver-slave
+
+.deploy-geoserver-master-production:
+  extends: .deploy-production
+  variables: *deploy-geoserver-master
+
+.deploy-geoserver-slave-production:
+  extends: .deploy-production
+  variables: *deploy-geoserver-slave
+
+deploy-geoserver-master-support-branch-development:
+  extends: .deploy-geoserver-master-development
   only:
     - branches
   except:
     - master
-  when: manual
+    - schedules
+
+deploy-geoserver-slave-support-branch-development:
+  extends: .deploy-geoserver-slave-development
+  only:
+    - branches
+  except:
+    - master
+    - schedules
+
+deploy-geoserver-master-stable-branch-development:
+  extends: .deploy-geoserver-master-development
+  only:
+    - master
+  except:
+    - schedules
+
+deploy-geoserver-slave-stable-branch-development:
+  extends: .deploy-geoserver-slave-development
+  only:
+    - master
+  except:
+    - schedules
 
 deploy-geoserver-master-stable-branch-production:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: gis
-    SERVICES_TO_CHECK: gis_geoserver-master
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.geoserver-master.tmpl.yml:docker-compose.geoserver-master.prod.yml
-    GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_ADMIN_SUBDOMAIN}
-    GEOSERVER_PASS: ${PRO_GEOSERVER_PASS}
-    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-  script:
-    - create-nets.sh gis-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-      GEOSERVER_PASS=${GEOSERVER_PASS}
-  environment:
-    name: geoserver-master-pro
-    url: https://${PRO_GEOSERVER_ADMIN_SUBDOMAIN}.${PRO_PUBLIC_HOSTNAME}
+  extends: .deploy-geoserver-master-production
   only:
     - master
-  when: manual
+  except:
+    - schedules
 
 deploy-geoserver-slave-stable-branch-production:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: gis
-    SERVICES_TO_CHECK: gis_geoserver-slave
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.geoserver-slave.tmpl.yml:docker-compose.geoserver-slave.prod.yml
-    GEOSERVER_SUBDOMAIN: ${PRO_GEOSERVER_SUBDOMAIN}
-    PUBLIC_HOSTNAME: ${PRO_PUBLIC_HOSTNAME}
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      GEOSERVER_SUBDOMAIN=${GEOSERVER_SUBDOMAIN} PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
-  environment:
-    name: geoserver-slave-pro
-    url: https://${PRO_GEOSERVER_SUBDOMAIN}.${PRO_PUBLIC_HOSTNAME}
+  extends: .deploy-geoserver-slave-production
   only:
     - master
-  when: manual
+  except:
+    - schedules
+
+deploy-geoserver-master-version-development:
+  extends: .deploy-geoserver-master-development
+  only:
+    - tags
+
+deploy-geoserver-slave-version-development:
+  extends: .deploy-geoserver-slave-development
+  only:
+    - tags
+
+deploy-geoserver-master-version-production:
+  extends: .deploy-geoserver-master-production
+  only:
+    - tags
+
+deploy-geoserver-slave-version-production:
+  extends: .deploy-geoserver-slave-production
+  only:
+    - tags
