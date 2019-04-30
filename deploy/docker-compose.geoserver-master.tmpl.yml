@@ -13,7 +13,7 @@ services:
       - SLAVE_MANAGEMENT_TIMEOUT
       - ROLE=master
       - SWARM_MODE=true
-      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
+      - JAVA_OPTS=-DPROXY_BASE_URL=https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}/geoserver
     networks:
       - gis-net
       - postgres-net
@@ -30,8 +30,8 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        traefik.admin.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
-        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
+        traefik.admin.frontend.rule: 'Host:${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.root.frontend.rule: 'Host:${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
       placement:
