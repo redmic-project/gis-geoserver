@@ -54,7 +54,7 @@ ENV MARLIN_VERSION="0.9.3" \
 
 ENV GEOSERVER_HOME="${CATALINA_HOME}/webapps/geoserver"
 
-ENV GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal netcdf-out" \
+ENV GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles netcdf gdal netcdf-out ysld" \
 	GEOSERVER_COMMUNITY_PLUGINS="" \
 	GEOSERVER_VERSION="${GEOSERVER_MAJOR_VERSION}.${GEOSERVER_MINOR_VERSION}" \
 	GEOSERVER_DATA_DIR="/var/geoserver/data" \
