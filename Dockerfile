@@ -181,6 +181,7 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 	#
 	# Install GeoServer Plugins
 	#
+	URL="https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/extensions" && \
 	for PLUGIN in ${GEOSERVER_PLUGINS}; \
 	do \
 		FILENAME="geoserver-${GEOSERVER_VERSION}-${PLUGIN}-plugin.zip" && \
@@ -207,7 +208,6 @@ RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CA
 			exit 1; \
 		fi; \
 	done && \
-	rm "${GEOSERVER_HOME}/WEB-INF/lib/imageio-ext-gdal-bindings-*.jar" && \
 	ln -s /usr/share/java/gdal.jar \
 		"${GEOSERVER_HOME}/WEB-INF/lib/imageio-ext-gdal-bindings-${GDAL_VERSION}.jar" && \
 	#
