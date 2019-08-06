@@ -4,6 +4,7 @@ ENV APR_VERSION="1.6.5" \
 	TOMCAT_NATIVE_VERSION="1.2.23" \
 	TEMP_PATH="/tmp/resources"
 
+# hadolint ignore=DL3003
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
 		build-essential=12.4ubuntu1 \
@@ -86,6 +87,8 @@ ENV GEOSERVER_PLUGINS="css inspire libjpeg-turbo csw wps pyramid vectortiles net
 COPY ./scripts /
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# hadolint ignore=DL3003
 RUN mkdir -p "${TEMP_PATH}" "${GEOSERVER_DATA_DIR}" "${GEOSERVER_LOG_DIR}" "${CATALINA_HOME}" && \
 	cd "${CATALINA_HOME}" && \
 	apt-get update && \
