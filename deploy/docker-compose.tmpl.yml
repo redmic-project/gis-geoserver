@@ -1,34 +1,37 @@
 version: '3.8'
 
-x-geoserver:
-  &geoserver-common
+x-geoserver-root: &geoserver-root
   image: ${IMAGE_NAME:-kartoza/geoserver}:${IMAGE_TAG:-latest}
-  environment:
-    HTTP_PORT: ${GEOSERVER_PORT}
-    EXISTING_DATA_DIR: 'true'
-    STABLE_EXTENSIONS:
-    COMMUNITY_EXTENSIONS:
-    CLUSTERING:
-    RANDOMSTRING: ${RANDOMSTRING_PREFIX}-{{.Service.Name}}-{{.Task.Slot}}
-    INSTANCE_STRING: {{.Service.Name}}-{{.Task.Slot}}
-    HTTP_PROXY_NAME: https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-    HTTP_PROXY_PORT:
-    CLUSTER_DURABILITY:
-  volumes:
-    - data-vol:/opt/geoserver/data_dir
-    - fonts-vol:/opt/fonts
-    - letsencrypt-vol:/etc/letsencrypt
-    - footprints-vol:/opt/footprints_dir
-    - cache-vol:/opt/geoserver/data_dir/gwc
-  networks:
-    gis-net:
-    postgres-net:
-    traefik-net:
+
+x-geoserver-environment: &geoserver-environment
+  HTTP_PORT: '${GEOSERVER_PORT}'
+  EXISTING_DATA_DIR: 'true'
+  STABLE_EXTENSIONS:
+  COMMUNITY_EXTENSIONS:
+  CLUSTERING:
+  RANDOMSTRING: ${RANDOMSTRING_PREFIX}-{{.Service.Name}}-{{.Task.Slot}}
+  INSTANCE_STRING: '{{.Service.Name}}-{{.Task.Slot}}'
+  HTTP_PROXY_NAME: https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+  HTTP_PROXY_PORT:
+  CLUSTER_DURABILITY:
+
+x-geoserver-volumes: &geoserver-volumes
+  - data-vol:/opt/geoserver/data_dir
+  - fonts-vol:/opt/fonts
+  - letsencrypt-vol:/etc/letsencrypt
+  - footprints-vol:/opt/footprints_dir
+  - cache-vol:/opt/geoserver/data_dir/gwc
+
+x-geoserver-networks: &geoserver-networks
+  gis-net:
+  postgres-net:
+  traefik-net:
 
 services:
   geoserver-master:
-    << : *geoserver-common
+    << : *geoserver-root
     environment:
+      << : *geoserver-environment
       GEOSERVER_ADMIN_PASSWORD:
       GEOSERVER_ADMIN_USER:
       BROKER_URL: http://0.0.0.0:61661
@@ -39,6 +42,8 @@ services:
       EMBEDDED_BROKER: enabled
       INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
+    volumes: *geoserver-volumes
+    networks: *geoserver-networks
     healthcheck:
       test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/
       interval: ${GEOSERVER_MASTER_HEALTHCHECK_INTERVAL:-30s}
@@ -66,14 +71,17 @@ services:
           memory: ${MASTER_INITIAL_MEMORY}
 
   geoserver-slave:
-    << : *geoserver-common
+    << : *geoserver-root
     environment:
-        BROKER_URL: http://geoserver-master:61661
-        READONLY: enabled
-        WEB_INTERFACE: 'false'
-        TOGGLE_MASTER: 'false'
-        TOGGLE_SLAVE: 'true'
-        EMBEDDED_BROKER: disabled
+      << : *geoserver-environment
+      BROKER_URL: http://geoserver-master:61661
+      READONLY: enabled
+      WEB_INTERFACE: 'false'
+      TOGGLE_MASTER: 'false'
+      TOGGLE_SLAVE: 'true'
+      EMBEDDED_BROKER: disabled
+    volumes: *geoserver-volumes
+    networks: *geoserver-networks
     healthcheck:
       test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/
       interval: ${GEOSERVER_SLAVE_HEALTHCHECK_INTERVAL:-30s}
@@ -97,7 +105,7 @@ volumes:
     name: ${LETSENCRYPT_VOL_NAME:-geoserver-letsencrypt-vol}
 
   cache-vol:
-    name: {CACHE_VOL_NAME:-geoserver-cache-vol}
+    name: ${CACHE_VOL_NAME:-geoserver-cache-vol}
 
 networks:
   gis-net:

@@ -35,7 +35,7 @@ volumes:
   footprints-vol:
     name: ${FOOTPRINTS_VOL_NAME:-geoserver-footprints-vol}
     driver: local
-      driver_opts:
-        type: ${FOOTPRINTS_VOL_TYPE:-nfs4}
-        o: addr=${VOL_ADDR},${FOOTPRINTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
-        device: :/geoserver-footprints-vol/
+    driver_opts:
+      type: ${FOOTPRINTS_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${FOOTPRINTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: :/geoserver-footprints-vol/
