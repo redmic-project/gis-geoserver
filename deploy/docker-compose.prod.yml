@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  geoserver-slave:
+    environment:
+      INITIAL_MEMORY: ${PRO_SLAVE_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${PRO_SLAVE_MAXIMUM_MEMORY}
+    deploy:
+      replicas: ${GEOSERVER_SLAVE_REPLICAS:-3}
+      placement:
+        constraints:
+          - node.role == worker
+      resources:
+        limits:
+          cpus: '${GEOSERVER_SLAVE_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${PRO_SLAVE_MAXIMUM_MEMORY}
+        reservations:
+          cpus: '${GEOSERVER_SLAVE_RESOURCES_LIMITS_CPUS:-0.1}'
+          memory: ${PRO_SLAVE_INITIAL_MEMORY}
+
+volumes:
+  data-vol:
+    name: ${DATA_VOL_NAME:-geoserver-data-vol}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+      perfmode: maxio
+
+  fonts-vol:
+    name: ${FONTS_VOL_NAME:-geoserver-fonts-vol}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+
+  footprints-vol:
+    name: ${FOOTPRINTS_VOL_NAME:-geoserver-footprints-vol}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared

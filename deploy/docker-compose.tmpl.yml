@@ -1,0 +1,116 @@
+version: '3.8'
+
+x-geoserver:
+  &geoserver-common
+  image: ${IMAGE_NAME:-kartoza/geoserver}:${IMAGE_TAG:-latest}
+  environment:
+    HTTP_PORT: ${GEOSERVER_PORT}
+    EXISTING_DATA_DIR: 'true'
+    STABLE_EXTENSIONS:
+    COMMUNITY_EXTENSIONS:
+    CLUSTERING:
+    RANDOMSTRING: ${RANDOMSTRING_PREFIX}-{{.Service.Name}}-{{.Task.Slot}}
+    INSTANCE_STRING: {{.Service.Name}}-{{.Task.Slot}}
+    HTTP_PROXY_NAME: https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+    HTTP_PROXY_PORT:
+    CLUSTER_DURABILITY:
+  volumes:
+    - data-vol:/opt/geoserver/data_dir
+    - fonts-vol:/opt/fonts
+    - letsencrypt-vol:/etc/letsencrypt
+    - footprints-vol:/opt/footprints_dir
+    - cache-vol:/opt/geoserver/data_dir/gwc
+  networks:
+    gis-net:
+    postgres-net:
+    traefik-net:
+
+services:
+  geoserver-master:
+    << : *geoserver-common
+    environment:
+      GEOSERVER_ADMIN_PASSWORD:
+      GEOSERVER_ADMIN_USER:
+      BROKER_URL: http://0.0.0.0:61661
+      READONLY: disabled
+      WEB_INTERFACE: 'true'
+      TOGGLE_MASTER: 'true'
+      TOGGLE_SLAVE: 'false'
+      EMBEDDED_BROKER: enabled
+      INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
+    healthcheck:
+      test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/
+      interval: ${GEOSERVER_MASTER_HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${GEOSERVER_MASTER_HEALTHCHECK_TIMEOUT:-10s}
+      retries: ${GEOSERVER_MASTER_HEALTHCHECK_RETRIES:-3}
+      start_period: ${GEOSERVER_MASTER_HEALTHCHECK_START_PERIOD:-2m}
+    deploy:
+      mode: replicated
+      replicas: ${GEOSERVER_MASTER_REPLICAS:-1}
+      labels:
+        traefik.admin.frontend.rule: 'Host:${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.root.frontend.rule: 'Host:${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
+        traefik.backend: geoserver-master
+        traefik.port: '${GEOSERVER_PORT}'
+      restart_policy:
+        delay: ${GEOSERVER_MASTER_RESTART_DELAY:-10s}
+      update_config:
+        delay: ${GEOSERVER_MASTER_UPDATE_DELAY:-3m}
+      resources:
+        limits:
+          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${MASTER_MAXIMUM_MEMORY}
+        reservations:
+          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-0.1}'
+          memory: ${MASTER_INITIAL_MEMORY}
+
+  geoserver-slave:
+    << : *geoserver-common
+    environment:
+        BROKER_URL: http://geoserver-master:61661
+        READONLY: enabled
+        WEB_INTERFACE: 'false'
+        TOGGLE_MASTER: 'false'
+        TOGGLE_SLAVE: 'true'
+        EMBEDDED_BROKER: disabled
+    healthcheck:
+      test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/
+      interval: ${GEOSERVER_SLAVE_HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${GEOSERVER_SLAVE_HEALTHCHECK_TIMEOUT:-10s}
+      retries: ${GEOSERVER_SLAVE_HEALTHCHECK_RETRIES:-3}
+      start_period: ${GEOSERVER_SLAVE_HEALTHCHECK_START_PERIOD:-2m}
+    deploy:
+      mode: replicated
+      labels:
+        traefik.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.frontend.headers.customResponseHeaders: 'Access-Control-Allow-Origin:*'
+        traefik.backend: geoserver-slave
+        traefik.port: '${GEOSERVER_PORT}'
+      restart_policy:
+        delay: ${GEOSERVER_SLAVE_RESTART_DELAY:-10s}
+      update_config:
+        delay: ${GEOSERVER_SLAVE_UPDATE_DELAY:-3m}
+
+volumes:
+  letsencrypt-vol:
+    name: ${LETSENCRYPT_VOL_NAME:-geoserver-letsencrypt-vol}
+
+  cache-vol:
+    name: {CACHE_VOL_NAME:-geoserver-cache-vol}
+
+networks:
+  gis-net:
+    name: ${GIS_NET_NAME:-gis-net}
+    driver: ${GIS_NET_DRIVER:-overlay}
+    attachable: true
+
+  postgres-net:
+    name: ${POSTGRES_NET_NAME:-postgres-net}
+    driver: ${POSTGRES_NET_DRIVER:-overlay}
+    external: true
+
+  traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
+    driver: ${TRAEFIK_NET_DRIVER:-overlay}
+    external: true

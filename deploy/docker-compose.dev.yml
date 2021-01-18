@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  geoserver-slave:
+    environment:
+      INITIAL_MEMORY: ${DEV_SLAVE_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${DEV_SLAVE_MAXIMUM_MEMORY}
+    deploy:
+      replicas: ${GEOSERVER_SLAVE_REPLICAS:-1}
+      resources:
+        limits:
+          cpus: '${GEOSERVER_SLAVE_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${DEV_SLAVE_MAXIMUM_MEMORY}
+        reservations:
+          cpus: '${GEOSERVER_SLAVE_RESOURCES_LIMITS_CPUS:-0.1}'
+          memory: ${DEV_SLAVE_INITIAL_MEMORY}
+
+volumes:
+  data-vol:
+    name: ${DATA_VOL_NAME:-geoserver-data-vol}
+    driver: local
+    driver_opts:
+      type: ${DATA_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: :/geoserver-data-vol/
+
+  fonts-vol:
+    name: ${FONTS_VOL_NAME:-geoserver-fonts-vol}
+    driver: local
+    driver_opts:
+      type: ${FONTS_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${FONTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: :/geoserver-fonts-vol/
+
+  footprints-vol:
+    name: ${FOOTPRINTS_VOL_NAME:-geoserver-footprints-vol}
+    driver: local
+      driver_opts:
+        type: ${FOOTPRINTS_VOL_TYPE:-nfs4}
+        o: addr=${VOL_ADDR},${FOOTPRINTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+        device: :/geoserver-footprints-vol/
