@@ -17,15 +17,23 @@ services:
 
 volumes:
   data-vol:
-    name: ${DATA_VOL_NAME:-geoserver-data-vol}
+    name: ${DATA_VOL_NAME}
     driver: local
     driver_opts:
       type: ${DATA_VOL_TYPE:-nfs4}
       o: addr=${VOL_ADDR},${DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
       device: :/geoserver-data-vol/
 
+  cache-vol:
+    name: ${CACHE_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${CACHE_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: :/geoserver-cache-vol/
+
   fonts-vol:
-    name: ${FONTS_VOL_NAME:-geoserver-fonts-vol}
+    name: ${FONTS_VOL_NAME}
     driver: local
     driver_opts:
       type: ${FONTS_VOL_TYPE:-nfs4}
@@ -33,7 +41,7 @@ volumes:
       device: :/geoserver-fonts-vol/
 
   footprints-vol:
-    name: ${FOOTPRINTS_VOL_NAME:-geoserver-footprints-vol}
+    name: ${FOOTPRINTS_VOL_NAME}
     driver: local
     driver_opts:
       type: ${FOOTPRINTS_VOL_TYPE:-nfs4}

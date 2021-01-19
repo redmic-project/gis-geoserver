@@ -5,15 +5,18 @@ x-geoserver-root: &geoserver-root
 
 x-geoserver-environment: &geoserver-environment
   HTTP_PORT: '${GEOSERVER_PORT}'
-  EXISTING_DATA_DIR: 'true'
+  EXISTING_DATA_DIR: 'false'
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
-  RANDOMSTRING: ${RANDOMSTRING_PREFIX}-{{.Service.Name}}-{{.Task.Slot}}
-  INSTANCE_STRING: '{{.Service.Name}}-{{.Task.Slot}}'
-  HTTP_PROXY_NAME: https://${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-  HTTP_PROXY_PORT:
+  TOGGLE_MASTER: 'true'
+  TOGGLE_SLAVE: 'true'
+  READONLY: disabled
+  WEB_INTERFACE: 'false'
+  RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
+  INSTANCE_STRING: 'instance-{{.Service.Name}}-{{.Task.Slot}}'
   CLUSTER_DURABILITY:
+  TOMCAT_EXTRAS:
 
 x-geoserver-volumes: &geoserver-volumes
   - data-vol:/opt/geoserver/data_dir
@@ -34,28 +37,24 @@ services:
       << : *geoserver-environment
       GEOSERVER_ADMIN_PASSWORD:
       GEOSERVER_ADMIN_USER:
-      BROKER_URL: http://0.0.0.0:61661
-      READONLY: disabled
-      WEB_INTERFACE: 'true'
-      TOGGLE_MASTER: 'true'
-      TOGGLE_SLAVE: 'false'
+      BROKER_URL: tpc://0.0.0.0:61661
       EMBEDDED_BROKER: enabled
       INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     healthcheck:
-      test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/
+      test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
       interval: ${GEOSERVER_MASTER_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${GEOSERVER_MASTER_HEALTHCHECK_TIMEOUT:-10s}
       retries: ${GEOSERVER_MASTER_HEALTHCHECK_RETRIES:-3}
-      start_period: ${GEOSERVER_MASTER_HEALTHCHECK_START_PERIOD:-2m}
+      start_period: ${GEOSERVER_MASTER_HEALTHCHECK_START_PERIOD:-3m}
     deploy:
       mode: replicated
       replicas: ${GEOSERVER_MASTER_REPLICAS:-1}
       labels:
-        traefik.admin.frontend.rule: 'Host:${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
-        traefik.root.frontend.rule: 'Host:${GEOSERVER_ADMIN_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
+        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
       restart_policy:
@@ -74,24 +73,21 @@ services:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
-      BROKER_URL: http://geoserver-master:61661
-      READONLY: enabled
-      WEB_INTERFACE: 'false'
-      TOGGLE_MASTER: 'false'
-      TOGGLE_SLAVE: 'true'
+      BROKER_URL: tcp://geoserver-master:61661
       EMBEDDED_BROKER: disabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     healthcheck:
-      test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/
+      test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
       interval: ${GEOSERVER_SLAVE_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${GEOSERVER_SLAVE_HEALTHCHECK_TIMEOUT:-10s}
       retries: ${GEOSERVER_SLAVE_HEALTHCHECK_RETRIES:-3}
-      start_period: ${GEOSERVER_SLAVE_HEALTHCHECK_START_PERIOD:-2m}
+      start_period: ${GEOSERVER_SLAVE_HEALTHCHECK_START_PERIOD:-3m}
     deploy:
       mode: replicated
       labels:
-        traefik.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.frontend.headers.customResponseHeaders: 'Access-Control-Allow-Origin:*'
         traefik.backend: geoserver-slave
         traefik.port: '${GEOSERVER_PORT}'
@@ -103,9 +99,6 @@ services:
 volumes:
   letsencrypt-vol:
     name: ${LETSENCRYPT_VOL_NAME:-geoserver-letsencrypt-vol}
-
-  cache-vol:
-    name: ${CACHE_VOL_NAME:-geoserver-cache-vol}
 
 networks:
   gis-net:
