@@ -4,8 +4,10 @@ x-geoserver-root: &geoserver-root
   image: ${IMAGE_NAME:-kartoza/geoserver}:${IMAGE_TAG:-latest}
 
 x-geoserver-environment: &geoserver-environment
+  GEOSERVER_ADMIN_PASSWORD:
+  GEOSERVER_ADMIN_USER:
+  GEOWEBCACHE_CACHE_DIR:
   HTTP_PORT: '${GEOSERVER_PORT}'
-  EXISTING_DATA_DIR: 'false'
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
@@ -23,7 +25,7 @@ x-geoserver-volumes: &geoserver-volumes
   - fonts-vol:/opt/fonts
   - letsencrypt-vol:/etc/letsencrypt
   - footprints-vol:/opt/footprints_dir
-  - cache-vol:/opt/geoserver/data_dir/gwc
+  - cache-vol:${GEOWEBCACHE_CACHE_DIR}
 
 x-geoserver-networks: &geoserver-networks
   gis-net:
@@ -35,9 +37,7 @@ services:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
-      GEOSERVER_ADMIN_PASSWORD:
-      GEOSERVER_ADMIN_USER:
-      BROKER_URL: tpc://0.0.0.0:61661
+      BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
       EMBEDDED_BROKER: enabled
       INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
@@ -69,11 +69,11 @@ services:
           cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-0.1}'
           memory: ${MASTER_INITIAL_MEMORY}
 
-  geoserver-slave:
+  geoserver-node:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
-      BROKER_URL: tcp://geoserver-master:61661
+      BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       EMBEDDED_BROKER: disabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
@@ -89,7 +89,7 @@ services:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.frontend.headers.customResponseHeaders: 'Access-Control-Allow-Origin:*'
-        traefik.backend: geoserver-slave
+        traefik.backend: geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
       restart_policy:
         delay: ${GEOSERVER_SLAVE_RESTART_DELAY:-10s}

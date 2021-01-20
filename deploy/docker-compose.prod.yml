@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  geoserver-slave:
+  geoserver-node:
     environment:
       INITIAL_MEMORY: ${PRO_SLAVE_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${PRO_SLAVE_MAXIMUM_MEMORY}
