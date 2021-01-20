@@ -11,10 +11,8 @@ x-geoserver-environment: &geoserver-environment
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
-  TOGGLE_MASTER: 'true'
-  TOGGLE_SLAVE: 'true'
   READONLY: disabled
-  WEB_INTERFACE: 'false'
+  EXISTING_DATA_DIR: 'true'
   RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
   INSTANCE_STRING: 'instance-{{.Service.Name}}-{{.Task.Slot}}'
   CLUSTER_DURABILITY:
@@ -39,6 +37,9 @@ services:
       << : *geoserver-environment
       BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
       EMBEDDED_BROKER: enabled
+      TOGGLE_MASTER: 'true'
+      TOGGLE_SLAVE: 'false'
+      WEB_INTERFACE: 'false'
       INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
     volumes: *geoserver-volumes
@@ -51,10 +52,11 @@ services:
       start_period: ${GEOSERVER_MASTER_HEALTHCHECK_START_PERIOD:-3m}
     deploy:
       mode: replicated
-      replicas: ${GEOSERVER_MASTER_REPLICAS:-1}
+      replicas: 1
       labels:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
+        traefik.web.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
         traefik.backend: geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
       restart_policy:
@@ -75,6 +77,9 @@ services:
       << : *geoserver-environment
       BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       EMBEDDED_BROKER: disabled
+      TOGGLE_MASTER: 'false'
+      TOGGLE_SLAVE: 'true'
+      WEB_INTERFACE: 'true'
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     healthcheck:
@@ -88,7 +93,6 @@ services:
       labels:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
-        traefik.frontend.headers.customResponseHeaders: 'Access-Control-Allow-Origin:*'
         traefik.backend: geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
       restart_policy:
