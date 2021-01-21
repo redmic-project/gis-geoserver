@@ -23,6 +23,7 @@ x-geoserver-volumes: &geoserver-volumes
   - fonts-vol:/opt/fonts
   - letsencrypt-vol:/etc/letsencrypt
   - footprints-vol:/opt/footprints_dir
+  - old-cache-vol:/opt/geoserver/data_dir/gwc
   - cache-vol:${GEOWEBCACHE_CACHE_DIR}
 
 x-geoserver-networks: &geoserver-networks
@@ -90,6 +91,8 @@ services:
       start_period: ${GEOSERVER_SLAVE_HEALTHCHECK_START_PERIOD:-3m}
     deploy:
       mode: replicated
+      placement:
+        max_replicas_per_node: 1
       labels:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
@@ -103,6 +106,9 @@ services:
 volumes:
   letsencrypt-vol:
     name: ${LETSENCRYPT_VOL_NAME:-geoserver-letsencrypt-vol}
+
+  old-cache-vol:
+    name: ${OLD_CACHE_VOL_NAME:-geoserver-old-cache-vol}
 
 networks:
   gis-net:
