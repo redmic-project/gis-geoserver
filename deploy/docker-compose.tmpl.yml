@@ -4,14 +4,11 @@ x-geoserver-root: &geoserver-root
   image: ${IMAGE_NAME:-kartoza/geoserver}:${IMAGE_TAG:-latest}
 
 x-geoserver-environment: &geoserver-environment
-  GEOSERVER_ADMIN_PASSWORD:
-  GEOSERVER_ADMIN_USER:
   GEOWEBCACHE_CACHE_DIR:
   HTTP_PORT: '${GEOSERVER_PORT}'
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
-  READONLY: disabled
   EXISTING_DATA_DIR: 'true'
   RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
   INSTANCE_STRING: 'instance-{{.Service.Name}}-{{.Task.Slot}}'
@@ -36,11 +33,12 @@ services:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
-      BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
-      EMBEDDED_BROKER: enabled
       TOGGLE_MASTER: 'true'
       TOGGLE_SLAVE: 'false'
       WEB_INTERFACE: 'false'
+      EMBEDDED_BROKER: enabled
+      BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
+      READONLY: disabled
       INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
     volumes: *geoserver-volumes
@@ -76,11 +74,12 @@ services:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
-      BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
-      EMBEDDED_BROKER: disabled
       TOGGLE_MASTER: 'false'
       TOGGLE_SLAVE: 'true'
       WEB_INTERFACE: 'true'
+      EMBEDDED_BROKER: disabled
+      BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
+      READONLY: enabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     healthcheck:
