@@ -57,6 +57,7 @@ services:
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.web.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
         traefik.login.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security_check'
+        traefik.gwc.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc'
         traefik.backend: geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
       restart_policy:
