@@ -95,7 +95,7 @@ services:
       placement:
         max_replicas_per_node: 1
       labels:
-        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
