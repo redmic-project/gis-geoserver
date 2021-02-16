@@ -28,6 +28,20 @@ x-geoserver-networks: &geoserver-networks
   postgres-net:
   traefik-net:
 
+x-geoserver-healthcheck: &geoserver-healthcheck
+  test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
+  interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-1m}
+  timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-30s}
+  retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
+  start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-3m}
+
+x-geoserver-deploy: &geoserver-deploy
+  mode: replicated
+  restart_policy:
+    delay: ${GEOSERVER_RESTART_DELAY:-10s}
+  update_config:
+    delay: ${GEOSERVER_UPDATE_DELAY:-3m}
+
 services:
   geoserver-master:
     << : *geoserver-root
@@ -41,14 +55,9 @@ services:
       READONLY: disabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
-    healthcheck:
-      test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
-      interval: ${GEOSERVER_MASTER_HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${GEOSERVER_MASTER_HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${GEOSERVER_MASTER_HEALTHCHECK_RETRIES:-3}
-      start_period: ${GEOSERVER_MASTER_HEALTHCHECK_START_PERIOD:-3m}
+    healthcheck: *geoserver-healthcheck
     deploy:
-      mode: replicated
+      << : *geoserver-deploy
       replicas: 1
       labels:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
@@ -58,10 +67,6 @@ services:
         traefik.gwc.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc'
         traefik.backend: geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
-      restart_policy:
-        delay: ${GEOSERVER_MASTER_RESTART_DELAY:-10s}
-      update_config:
-        delay: ${GEOSERVER_MASTER_UPDATE_DELAY:-3m}
 
   geoserver-node:
     << : *geoserver-root
@@ -75,14 +80,9 @@ services:
       READONLY: enabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
-    healthcheck:
-      test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
-      interval: ${GEOSERVER_NODE_HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${GEOSERVER_NODE_HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${GEOSERVER_NODE_HEALTHCHECK_RETRIES:-3}
-      start_period: ${GEOSERVER_NODE_HEALTHCHECK_START_PERIOD:-3m}
+    healthcheck: *geoserver-healthcheck
     deploy:
-      mode: replicated
+      << : *geoserver-deploy
       placement:
         max_replicas_per_node: 1
       labels:
@@ -90,10 +90,6 @@ services:
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
-      restart_policy:
-        delay: ${GEOSERVER_NODE_RESTART_DELAY:-10s}
-      update_config:
-        delay: ${GEOSERVER_NODE_UPDATE_DELAY:-3m}
 
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
