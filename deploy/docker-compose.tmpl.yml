@@ -56,7 +56,7 @@ services:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.web.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
-        traefik.login.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security_check'
+        traefik.login.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security'
         traefik.gwc.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc'
         traefik.backend: geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
@@ -105,7 +105,7 @@ services:
         delay: ${GEOSERVER_SLAVE_UPDATE_DELAY:-3m}
 
   postgres-gwc:
-    image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-latest}
+    image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
     command: >
       -c work_mem=${POSTGRES_GWC_WORK_MEM:-16MB}
       -c max_wal_size=${POSTGRES_GWC_MAX_WAL_SIZE:-256MB}
