@@ -86,10 +86,10 @@ services:
     networks: *geoserver-networks
     healthcheck:
       test:  curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
-      interval: ${GEOSERVER_SLAVE_HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${GEOSERVER_SLAVE_HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${GEOSERVER_SLAVE_HEALTHCHECK_RETRIES:-3}
-      start_period: ${GEOSERVER_SLAVE_HEALTHCHECK_START_PERIOD:-3m}
+      interval: ${GEOSERVER_NODE_HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${GEOSERVER_NODE_HEALTHCHECK_TIMEOUT:-10s}
+      retries: ${GEOSERVER_NODE_HEALTHCHECK_RETRIES:-3}
+      start_period: ${GEOSERVER_NODE_HEALTHCHECK_START_PERIOD:-3m}
     deploy:
       mode: replicated
       placement:
@@ -100,9 +100,9 @@ services:
         traefik.backend: geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
       restart_policy:
-        delay: ${GEOSERVER_SLAVE_RESTART_DELAY:-10s}
+        delay: ${GEOSERVER_NODE_RESTART_DELAY:-10s}
       update_config:
-        delay: ${GEOSERVER_SLAVE_UPDATE_DELAY:-3m}
+        delay: ${GEOSERVER_NODE_UPDATE_DELAY:-3m}
 
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}

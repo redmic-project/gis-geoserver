@@ -3,17 +3,18 @@ version: '3.8'
 services:
   geoserver-node:
     environment:
-      INITIAL_MEMORY: ${DEV_SLAVE_INITIAL_MEMORY}
-      MAXIMUM_MEMORY: ${DEV_SLAVE_MAXIMUM_MEMORY}
+      INITIAL_MEMORY: ${DEV_NODE_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${DEV_NODE_MAXIMUM_MEMORY}
     deploy:
-      replicas: ${GEOSERVER_SLAVE_REPLICAS:-1}
+      replicas: ${GEOSERVER_NODE_REPLICAS:-1}
       resources:
         limits:
-          cpus: '${GEOSERVER_SLAVE_RESOURCES_LIMITS_CPUS:-1}'
-          memory: ${GEOSERVER_SLAVE_RESOURCES_LIMITS_MEMORY:-2500M}
+          cpus: '${GEOSERVER_NODE_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${GEOSERVER_NODE_RESOURCES_LIMITS_MEMORY:-2500M}
         reservations:
-          cpus: '${GEOSERVER_SLAVE_RESOURCES_RESERVATIONS_CPUS:-0.1}'
-          memory: ${GEOSERVER_SLAVE_RESOURCES_RESERVATIONS_MEMORY:-1500M}
+          cpus: '${GEOSERVER_NODE_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${GEOSERVER_NODE_RESOURCES_RESERVATIONS_MEMORY:-1500M}
+
 
 volumes:
   geoserver-data-vol:
