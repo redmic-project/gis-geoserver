@@ -39,8 +39,6 @@ services:
       EMBEDDED_BROKER: enabled
       BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
       READONLY: disabled
-      INITIAL_MEMORY: ${MASTER_INITIAL_MEMORY}
-      MAXIMUM_MEMORY: ${MASTER_MAXIMUM_MEMORY}
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     healthcheck:
@@ -64,13 +62,6 @@ services:
         delay: ${GEOSERVER_MASTER_RESTART_DELAY:-10s}
       update_config:
         delay: ${GEOSERVER_MASTER_UPDATE_DELAY:-3m}
-      resources:
-        limits:
-          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-1}'
-          memory: ${GEOSERVER_MASTER_RESOURCES_LIMITS_MEMORY:-3G}
-        reservations:
-          cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS:-0.1}'
-          memory: ${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_MEMORY:-2G}
 
   geoserver-node:
     << : *geoserver-root
