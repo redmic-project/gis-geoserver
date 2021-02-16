@@ -20,46 +20,46 @@ volumes:
     name: ${GEOSERVER_DATA_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${GEOSERVER_DATA_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${GEOSERVER_DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
       device: :/geoserver-data-vol/
 
   cache-vol:
     name: ${CACHE_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${CACHE_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${CACHE_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
       device: :/geoserver-cache-vol/
 
   fonts-vol:
     name: ${FONTS_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${FONTS_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${FONTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
       device: :/geoserver-fonts-vol/
 
   footprints-vol:
     name: ${FOOTPRINTS_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${FOOTPRINTS_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${FOOTPRINTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
       device: :/geoserver-footprints-vol/
 
   postgres-data-vol:
     name: ${POSTGRES_DATA_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${POSTGRES_DATA_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${POSTGRES_DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
       device: :/postgres-gwc-data-vol/
 
   wal-vol:
     name: ${WAL_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${WAL_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${WAL_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
       device: :/postgres-gwc-wal-vol/
