@@ -1,7 +1,7 @@
 version: '3.8'
 
 x-geoserver-root: &geoserver-root
-  image: ${IMAGE_NAME:-kartoza/geoserver}:${IMAGE_TAG:-latest}
+  image: ${GEOSERVER_IMAGE_NAME:-kartoza/geoserver}:${GEOSERVER_IMAGE_TAG:-latest}
 
 x-geoserver-environment: &geoserver-environment
   GEOWEBCACHE_CACHE_DIR:
@@ -16,7 +16,7 @@ x-geoserver-environment: &geoserver-environment
   TOMCAT_EXTRAS:
 
 x-geoserver-volumes: &geoserver-volumes
-  - data-vol:/opt/geoserver/data_dir
+  - geoserver-data-vol:/opt/geoserver/data_dir
   - fonts-vol:/opt/fonts
   - letsencrypt-vol:/etc/letsencrypt
   - footprints-vol:/opt/footprints_dir
@@ -104,6 +104,37 @@ services:
       update_config:
         delay: ${GEOSERVER_SLAVE_UPDATE_DELAY:-3m}
 
+  postgres-gwc:
+    image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-latest}
+    command: >
+      -c work_mem=${POSTGRES_GWC_WORK_MEM:-16MB}
+      -c max_wal_size=${POSTGRES_GWC_MAX_WAL_SIZE:-256MB}
+    environment:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD:
+      POSTGRES_DB:
+      PGDATA:
+      POSTGRES_INITDB_WALDIR:
+    networks:
+      gis-net:
+    volumes:
+      - postgres-data-vol:${PGDATA}
+      - wal-vol:${POSTGRES_INITDB_WALDIR}
+    deploy:
+      mode: replicated
+      replicas: ${POSTGRES_GWC_REPLICAS:-1}
+      restart_policy:
+        delay: ${POSTGRES_GWC_RESTART_DELAY:-1s}
+      update_config:
+        delay: ${POSTGRES_GWC_UPDATE_DELAY:-30s}
+      resources:
+        limits:
+          cpus: '${POSTGRES_GWC_RESOURCES_LIMITS_CPUS:-0.5}'
+          memory: ${POSTGRES_GWC_RESOURCES_LIMITS_MEMORY:-128M}
+        reservations:
+          cpus: '${POSTGRES_GWC_RESOURCES_RESERVATIONS_CPUS:-0.001}'
+          memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-32M}
+
 volumes:
   letsencrypt-vol:
     name: ${LETSENCRYPT_VOL_NAME:-geoserver-letsencrypt-vol}
@@ -115,7 +146,7 @@ networks:
   gis-net:
     name: ${GIS_NET_NAME:-gis-net}
     driver: ${GIS_NET_DRIVER:-overlay}
-    attachable: true
+    attachable: ${GIS_NET_ATTACHABLE:-true}
 
   postgres-net:
     name: ${POSTGRES_NET_NAME:-postgres-net}

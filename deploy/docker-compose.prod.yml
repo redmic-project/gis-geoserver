@@ -19,8 +19,8 @@ services:
           memory: ${PRO_SLAVE_INITIAL_MEMORY}
 
 volumes:
-  data-vol:
-    name: ${DATA_VOL_NAME}
+  geoserver-data-vol:
+    name: ${GEOSERVER_DATA_VOL_NAME}
     driver: 'cloudstor:aws'
     driver_opts:
       backing: shared
@@ -41,6 +41,18 @@ volumes:
 
   footprints-vol:
     name: ${FOOTPRINTS_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+
+  postgres-data-vol:
+    name: ${POSTGRES_DATA_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+
+  wal-vol:
+    name: ${WAL_VOL_NAME}
     driver: 'cloudstor:aws'
     driver_opts:
       backing: shared

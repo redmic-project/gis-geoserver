@@ -16,12 +16,12 @@ services:
           memory: ${DEV_SLAVE_INITIAL_MEMORY}
 
 volumes:
-  data-vol:
-    name: ${DATA_VOL_NAME}
+  geoserver-data-vol:
+    name: ${GEOSERVER_DATA_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${DATA_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${GEOSERVER_DATA_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${GEOSERVER_DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
       device: :/geoserver-data-vol/
 
   cache-vol:
@@ -29,7 +29,7 @@ volumes:
     driver: local
     driver_opts:
       type: ${CACHE_VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR},${DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      o: addr=${VOL_ADDR},${CACHE_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
       device: :/geoserver-cache-vol/
 
   fonts-vol:
@@ -47,3 +47,19 @@ volumes:
       type: ${FOOTPRINTS_VOL_TYPE:-nfs4}
       o: addr=${VOL_ADDR},${FOOTPRINTS_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
       device: :/geoserver-footprints-vol/
+
+  postgres-data-vol:
+    name: ${POSTGRES_DATA_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${POSTGRES_DATA_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${POSTGRES_DATA_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: :/postgres-gwc-data-vol/
+
+  wal-vol:
+    name: ${WAL_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${WAL_VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR},${WAL_VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: :/postgres-gwc-wal-vol/
