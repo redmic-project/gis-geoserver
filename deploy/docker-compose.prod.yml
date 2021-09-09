@@ -19,7 +19,6 @@ services:
       INITIAL_MEMORY: ${PRO_NODE_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${PRO_NODE_MAXIMUM_MEMORY}
     deploy:
-      replicas: ${GEOSERVER_NODE_REPLICAS:-3}
       placement:
         constraints:
           - node.role == worker

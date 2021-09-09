@@ -4,23 +4,27 @@ x-geoserver-root: &geoserver-root
   image: ${GEOSERVER_IMAGE_NAME:-kartoza/geoserver}:${GEOSERVER_IMAGE_TAG:-latest}
 
 x-geoserver-environment: &geoserver-environment
+  GEOSERVER_DATA_DIR:
   GEOWEBCACHE_CACHE_DIR:
+  FOOTPRINTS_DATA_DIR:
   HTTP_PORT: '${GEOSERVER_PORT}'
+  HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
+  HTTP_PROXY_PORT:
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
   EXISTING_DATA_DIR: 'true'
   RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
-  INSTANCE_STRING: 'instance-{{.Service.Name}}-{{.Task.Slot}}'
+  INSTANCE_STRING: '{{.Service.Name}}-{{.Task.Slot}}'
   CLUSTER_DURABILITY:
   TOMCAT_EXTRAS:
+  GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
 
 x-geoserver-volumes: &geoserver-volumes
-  - geoserver-data-vol:/opt/geoserver/data_dir
+  - geoserver-data-vol:${GEOSERVER_DATA_DIR}
   - fonts-vol:/opt/fonts
-  - letsencrypt-vol:/etc/letsencrypt
-  - footprints-vol:/opt/footprints_dir
-  - old-cache-vol:/opt/geoserver/data_dir/gwc
+  - certs-vol:/etc/certs
+  - footprints-vol:${FOOTPRINTS_DATA_DIR}
   - cache-vol:${GEOWEBCACHE_CACHE_DIR}
 
 x-geoserver-networks: &geoserver-networks
@@ -47,6 +51,8 @@ services:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
+      GEOSERVER_ADMIN_USER:
+      GEOSERVER_ADMIN_PASSWORD:
       TOGGLE_MASTER: 'true'
       TOGGLE_SLAVE: 'false'
       WEB_INTERFACE: 'false'
@@ -83,6 +89,7 @@ services:
     healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
+      replicas: ${GEOSERVER_NODE_REPLICAS:-1}
       placement:
         max_replicas_per_node: 1
       labels:
@@ -123,11 +130,8 @@ services:
           memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-32M}
 
 volumes:
-  letsencrypt-vol:
-    name: ${LETSENCRYPT_VOL_NAME:-geoserver-letsencrypt-vol}
-
-  old-cache-vol:
-    name: ${OLD_CACHE_VOL_NAME:-geoserver-old-cache-vol}
+  certs-vol:
+    name: ${CERTS_VOL_NAME:-geoserver-certs-vol}
 
 networks:
   gis-net:
