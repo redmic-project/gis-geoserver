@@ -17,6 +17,12 @@ x-geoserver-environment: &geoserver-environment
   CLUSTER_DURABILITY:
   TOMCAT_EXTRAS:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
+  DB_BACKEND: 'postgres'
+  HOST: 'postgres-gwc'
+  POSTGRES_PORT: '5432'
+  POSTGRES_DB:
+  POSTGRES_USER:
+  POSTGRES_PASS: '${POSTGRES_PASSWORD}'
 
 x-geoserver-volumes: &geoserver-volumes
   - geoserver-data-vol:${GEOSERVER_DATA_DIR}
