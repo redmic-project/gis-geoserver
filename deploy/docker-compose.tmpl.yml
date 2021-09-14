@@ -9,11 +9,9 @@ x-geoserver-environment: &geoserver-environment
   FOOTPRINTS_DATA_DIR:
   HTTP_PORT: '${GEOSERVER_PORT}'
   HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
-  HTTP_PROXY_PORT:
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
-  EXISTING_DATA_DIR: 'true'
   RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
   INSTANCE_STRING: '{{.Service.Name}}-{{.Task.Slot}}'
   CLUSTER_DURABILITY:
