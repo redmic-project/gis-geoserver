@@ -7,6 +7,7 @@ x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
   GEOWEBCACHE_CACHE_DIR:
   FOOTPRINTS_DATA_DIR:
+  EXTRA_CONFIG_DIR:
   HTTP_PORT: '${GEOSERVER_PORT}'
   HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
   STABLE_EXTENSIONS:
@@ -17,6 +18,7 @@ x-geoserver-environment: &geoserver-environment
   CLUSTER_DURABILITY:
   TOMCAT_EXTRAS:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
+  CATALINA_OPTS: '-DHTTP_PROXY_NAME=$${HTTP_PROXY_NAME}'
   DB_BACKEND: 'postgres'
   HOST: 'postgres-gwc'
   POSTGRES_PORT: '5432'
@@ -35,6 +37,14 @@ x-geoserver-networks: &geoserver-networks
   gis-net:
   postgres-net:
   traefik-net:
+
+x-geoserver-configs: &geoserver-configs
+  - source: web-xml-config
+    target: ${EXTRA_CONFIG_DIR}/web.xml
+  - source: broker-properties-config
+    target: ${EXTRA_CONFIG_DIR}/embedded-broker.properties
+  - source: cluster-properties-config
+    target: ${EXTRA_CONFIG_DIR}/cluster.properties
 
 x-geoserver-healthcheck: &geoserver-healthcheck
   test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
@@ -65,6 +75,7 @@ services:
       READONLY: disabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
+    configs: *geoserver-configs
     healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
@@ -90,6 +101,7 @@ services:
       READONLY: enabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
+    configs: *geoserver-configs
     healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
@@ -152,3 +164,16 @@ networks:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
+
+configs:
+  web-xml-config:
+    name: ${WEB_XML_CONFIG_NAME:-geoserver-web-xml-config}
+    file: ./config/web.xml
+
+  broker-properties-config:
+    name: ${BROKER_PROPERTIES_CONFIG_NAME:-geoserver-broker-properties-config}
+    file: ./config/embedded-broker.properties
+
+  cluster-properties-config:
+    name: ${CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-cluster-properties-config}
+    file: ./config/cluster.properties
