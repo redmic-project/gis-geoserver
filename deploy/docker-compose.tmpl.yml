@@ -173,9 +173,9 @@ configs:
     file: ./config/web.xml
 
   master-cluster-properties-config:
-    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-master-geoserver-cluster-properties-config}
+    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-master-cluster-properties-config}
     file: ./config/master-cluster.properties
 
   node-cluster-properties-config:
-    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-node-geoserver-cluster-properties-config}
+    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-node-cluster-properties-config}
     file: ./config/node-cluster.properties
