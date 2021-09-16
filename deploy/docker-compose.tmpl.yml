@@ -11,6 +11,8 @@ x-geoserver-environment: &geoserver-environment
   GEOSERVER_LOG_LOCATION: 'logs/{{.Service.Name}}-{{.Task.Slot}}.log'
   HTTP_PORT: '${GEOSERVER_PORT}'
   HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
+  GEOSERVER_ADMIN_USER:
+  GEOSERVER_ADMIN_PASSWORD:
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
@@ -59,8 +61,6 @@ services:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
-      GEOSERVER_ADMIN_USER:
-      GEOSERVER_ADMIN_PASSWORD:
       TOGGLE_MASTER: 'true'
       TOGGLE_SLAVE: 'false'
       WEB_INTERFACE: 'false'
