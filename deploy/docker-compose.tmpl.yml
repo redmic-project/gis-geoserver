@@ -10,7 +10,7 @@ x-geoserver-environment: &geoserver-environment
   EXTRA_CONFIG_DIR:
   GEOSERVER_LOG_LOCATION: 'logs/{{.Service.Name}}-{{.Task.Slot}}.log'
   HTTP_PORT: '${GEOSERVER_PORT}'
-  HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
+  HTTP_PROXY_NAME: '${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
   STABLE_EXTENSIONS:
   COMMUNITY_EXTENSIONS:
   CLUSTERING:
@@ -20,7 +20,7 @@ x-geoserver-environment: &geoserver-environment
   TOMCAT_EXTRAS:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
   CATALINA_OPTS: '-DHTTP_PROXY_NAME=$${HTTP_PROXY_NAME}'
-  GEOSERVER_CSRF_WHITELIST: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
+  GEOSERVER_CSRF_WHITELIST: '${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
   DB_BACKEND: postgres
   HOST: postgres-gwc
   POSTGRES_PORT: 5432
@@ -79,11 +79,11 @@ services:
       << : *geoserver-deploy
       replicas: 1
       labels:
-        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
-        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
-        traefik.web.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
-        traefik.login.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security'
-        traefik.gwc.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc'
+        traefik.default.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
+        traefik.root.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
+        traefik.web.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
+        traefik.login.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security'
+        traefik.gwc.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc'
         traefik.backend: 2-geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
 
@@ -111,8 +111,8 @@ services:
       placement:
         max_replicas_per_node: 1
       labels:
-        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/'
-        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
+        traefik.default.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/'
+        traefik.root.frontend.rule: 'Host:${G2_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: 2-geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
 
