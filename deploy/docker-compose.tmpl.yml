@@ -55,7 +55,7 @@ x-geoserver-deploy: &geoserver-deploy
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
 
 services:
-  geoserver-master:
+  2-geoserver-master:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
@@ -84,10 +84,10 @@ services:
         traefik.web.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
         traefik.login.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security'
         traefik.gwc.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc'
-        traefik.backend: geoserver-master
+        traefik.backend: 2-geoserver-master
         traefik.port: '${GEOSERVER_PORT}'
 
-  geoserver-node:
+  2-geoserver-node:
     << : *geoserver-root
     environment:
       << : *geoserver-environment
@@ -95,7 +95,7 @@ services:
       TOGGLE_SLAVE: 'true'
       WEB_INTERFACE: 'true'
       EMBEDDED_BROKER: disabled
-      BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
+      BROKER_URL: 'tcp://2-geoserver-master:${BROKER_PORT}'
       READONLY: enabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
@@ -113,7 +113,7 @@ services:
       labels:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
-        traefik.backend: geoserver-node
+        traefik.backend: 2-geoserver-node
         traefik.port: '${GEOSERVER_PORT}'
 
   postgres-gwc:
@@ -173,9 +173,9 @@ configs:
     file: ./config/web.xml
 
   master-cluster-properties-config:
-    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-master-cluster-properties-config}
+    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-2-geoserver-master-cluster-properties-config}
     file: ./config/master-cluster.properties
 
   node-cluster-properties-config:
-    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-node-cluster-properties-config}
+    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-2-geoserver-node-cluster-properties-config}
     file: ./config/node-cluster.properties

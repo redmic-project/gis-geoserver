@@ -34,7 +34,7 @@ volumes:
     driver_opts:
       type: ${VOL_TYPE}
       o: addr=${VOL_ADDR},${VOL_OPTIONS}
-      device: :/geoserver-data-vol/
+      device: :/2-geoserver-data-vol/
 
   cache-vol:
     name: ${CACHE_VOL_NAME}
