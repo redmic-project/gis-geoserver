@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  geoserver-master:
+  2-geoserver-master:
     environment:
       INITIAL_MEMORY: ${DEV_MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${DEV_MASTER_MAXIMUM_MEMORY}
@@ -14,7 +14,7 @@ services:
           cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS:-0.1}'
           memory: ${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_MEMORY:-1500M}
 
-  geoserver-node:
+  2-geoserver-node:
     environment:
       INITIAL_MEMORY: ${DEV_NODE_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${DEV_NODE_MAXIMUM_MEMORY}
