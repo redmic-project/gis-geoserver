@@ -8,6 +8,7 @@ x-geoserver-environment: &geoserver-environment
   GEOWEBCACHE_CACHE_DIR:
   FOOTPRINTS_DATA_DIR:
   EXTRA_CONFIG_DIR:
+  GEOSERVER_LOG_LOCATION: 'logs/{{.Service.Name}}-{{.Task.Slot}}.log'
   HTTP_PORT: '${GEOSERVER_PORT}'
   HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
   STABLE_EXTENSIONS:
@@ -19,9 +20,10 @@ x-geoserver-environment: &geoserver-environment
   TOMCAT_EXTRAS:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
   CATALINA_OPTS: '-DHTTP_PROXY_NAME=$${HTTP_PROXY_NAME}'
-  DB_BACKEND: 'postgres'
-  HOST: 'postgres-gwc'
-  POSTGRES_PORT: '5432'
+  GEOSERVER_CSRF_WHITELIST: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
+  DB_BACKEND: postgres
+  HOST: postgres-gwc
+  POSTGRES_PORT: 5432
   POSTGRES_DB:
   POSTGRES_USER:
   POSTGRES_PASS: '${POSTGRES_PASSWORD}'
@@ -37,14 +39,6 @@ x-geoserver-networks: &geoserver-networks
   gis-net:
   postgres-net:
   traefik-net:
-
-x-geoserver-configs: &geoserver-configs
-  - source: web-xml-config
-    target: ${EXTRA_CONFIG_DIR}/web.xml
-  - source: broker-properties-config
-    target: ${EXTRA_CONFIG_DIR}/embedded-broker.properties
-  - source: cluster-properties-config
-    target: ${EXTRA_CONFIG_DIR}/cluster.properties
 
 x-geoserver-healthcheck: &geoserver-healthcheck
   test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
@@ -75,7 +69,11 @@ services:
       READONLY: disabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
-    configs: *geoserver-configs
+    configs:
+      - source: web-xml-config
+        target: ${EXTRA_CONFIG_DIR}/web.xml
+      - source: master-cluster-properties-config
+        target: ${EXTRA_CONFIG_DIR}/cluster.properties
     healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
@@ -101,7 +99,11 @@ services:
       READONLY: enabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
-    configs: *geoserver-configs
+    configs:
+      - source: web-xml-config
+        target: ${EXTRA_CONFIG_DIR}/web.xml
+      - source: node-cluster-properties-config
+        target: ${EXTRA_CONFIG_DIR}/cluster.properties
     healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
@@ -170,10 +172,10 @@ configs:
     name: ${WEB_XML_CONFIG_NAME:-geoserver-web-xml-config}
     file: ./config/web.xml
 
-  broker-properties-config:
-    name: ${BROKER_PROPERTIES_CONFIG_NAME:-geoserver-broker-properties-config}
-    file: ./config/embedded-broker.properties
+  master-cluster-properties-config:
+    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-master-geoserver-cluster-properties-config}
+    file: ./config/master-cluster.properties
 
-  cluster-properties-config:
-    name: ${CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-cluster-properties-config}
-    file: ./config/cluster.properties
+  node-cluster-properties-config:
+    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-node-geoserver-cluster-properties-config}
+    file: ./config/node-cluster.properties
