@@ -42,7 +42,7 @@ volumes:
     driver_opts:
       type: ${VOL_TYPE}
       o: addr=${VOL_ADDR},${VOL_OPTIONS}
-      device: :/geoserver-cache-vol/
+      device: :/2-geoserver-cache-vol/
 
   fonts-vol:
     name: ${FONTS_VOL_NAME}
