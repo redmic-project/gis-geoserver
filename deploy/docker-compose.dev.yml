@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  geoserver-master:
+    environment:
+      INITIAL_MEMORY: ${DEV_MASTER_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${DEV_MASTER_MAXIMUM_MEMORY}
+    deploy:
+      resources:
+        limits:
+          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${GEOSERVER_MASTER_RESOURCES_LIMITS_MEMORY:-2500M}
+        reservations:
+          cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_MEMORY:-1500M}
+
+  geoserver-node:
+    environment:
+      INITIAL_MEMORY: ${DEV_NODE_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${DEV_NODE_MAXIMUM_MEMORY}
+    deploy:
+      resources:
+        limits:
+          cpus: '${GEOSERVER_NODE_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${GEOSERVER_NODE_RESOURCES_LIMITS_MEMORY:-2500M}
+        reservations:
+          cpus: '${GEOSERVER_NODE_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${GEOSERVER_NODE_RESOURCES_RESERVATIONS_MEMORY:-1500M}
+
+volumes:
+  geoserver-data-vol:
+    name: ${GEOSERVER_DATA_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/geoserver-data-vol/
+
+  cache-vol:
+    name: ${CACHE_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/geoserver-cache-vol/
+
+  fonts-vol:
+    name: ${FONTS_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/geoserver-fonts-vol/
+
+  footprints-vol:
+    name: ${FOOTPRINTS_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/geoserver-footprints-vol/
+
+  postgres-data-vol:
+    name: ${POSTGRES_DATA_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/postgres-gwc-data-vol/
+
+  wal-vol:
+    name: ${WAL_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/postgres-gwc-wal-vol/

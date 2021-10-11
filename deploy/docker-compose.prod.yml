@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  geoserver-master:
+    environment:
+      INITIAL_MEMORY: ${PRO_MASTER_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${PRO_MASTER_MAXIMUM_MEMORY}
+    deploy:
+      resources:
+        limits:
+          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${GEOSERVER_MASTER_RESOURCES_LIMITS_MEMORY:-3G}
+        reservations:
+          cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_MEMORY:-2G}
+
+  geoserver-node:
+    environment:
+      INITIAL_MEMORY: ${PRO_NODE_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${PRO_NODE_MAXIMUM_MEMORY}
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+      resources:
+        limits:
+          cpus: '${GEOSERVER_NODE_RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${GEOSERVER_NODE_RESOURCES_LIMITS_MEMORY:-3G}
+        reservations:
+          cpus: '${GEOSERVER_NODE_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${GEOSERVER_NODE_RESOURCES_RESERVATIONS_MEMORY:-2G}
+
+volumes:
+  geoserver-data-vol:
+    name: ${GEOSERVER_DATA_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+      perfmode: maxio
+
+  cache-vol:
+    name: ${CACHE_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+      perfmode: maxio
+
+  fonts-vol:
+    name: ${FONTS_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+
+  footprints-vol:
+    name: ${FOOTPRINTS_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+
+  postgres-data-vol:
+    name: ${POSTGRES_DATA_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
+
+  wal-vol:
+    name: ${WAL_VOL_NAME}
+    driver: 'cloudstor:aws'
+    driver_opts:
+      backing: shared
