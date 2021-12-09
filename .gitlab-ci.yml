@@ -10,4 +10,4 @@ stages:
   variables:
     STACK: gis
   environment:
-    url: https://${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+    url: https://${DD_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}

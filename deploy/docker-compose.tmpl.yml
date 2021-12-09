@@ -115,6 +115,9 @@ services:
         traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/'
         traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
         traefik.backend: geoserver-node
+        traefik.backend.loadbalancer.stickiness: 'true'
+        traefik.backend.loadbalancer.stickiness.cookieName: traefik-geoserver-node
+        traefik.backend.loadbalancer.method: drr
         traefik.port: '${GEOSERVER_PORT}'
 
   postgres-gwc:
