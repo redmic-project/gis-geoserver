@@ -6,6 +6,9 @@ services:
       INITIAL_MEMORY: ${PRO_MASTER_INITIAL_MEMORY}
       MAXIMUM_MEMORY: ${PRO_MASTER_MAXIMUM_MEMORY}
     deploy:
+      placement:
+        constraints:
+          - node.role == worker
       resources:
         limits:
           cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-1}'
