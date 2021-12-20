@@ -6,10 +6,12 @@ x-geoserver-root: &geoserver-root
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
   GEOWEBCACHE_CACHE_DIR:
+  FONTS_DIR:
   FOOTPRINTS_DATA_DIR:
   EXTRA_CONFIG_DIR:
   GEOSERVER_LOG_LOCATION: 'logs/{{.Service.Name}}-{{.Task.Slot}}.log'
   HTTP_PORT: '${GEOSERVER_PORT}'
+  HTTP_SCHEME:
   HTTP_PROXY_NAME: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
   GEOSERVER_ADMIN_USER:
   GEOSERVER_ADMIN_PASSWORD:
@@ -29,11 +31,12 @@ x-geoserver-environment: &geoserver-environment
   POSTGRES_DB:
   POSTGRES_USER:
   POSTGRES_PASS: '${POSTGRES_PASSWORD}'
+  DISK_QUOTA_SIZE:
+  GEOSERVER_LOG_LEVEL:
 
 x-geoserver-volumes: &geoserver-volumes
   - geoserver-data-vol:${GEOSERVER_DATA_DIR}
-  - fonts-vol:/opt/fonts
-  - certs-vol:/etc/certs
+  - fonts-vol:${FONTS_DIR}
   - footprints-vol:${FOOTPRINTS_DATA_DIR}
   - cache-vol:${GEOWEBCACHE_CACHE_DIR}
 
@@ -70,8 +73,6 @@ services:
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     configs:
-      - source: web-xml-config
-        target: ${EXTRA_CONFIG_DIR}/web.xml
       - source: master-cluster-properties-config
         target: ${EXTRA_CONFIG_DIR}/cluster.properties
     healthcheck: *geoserver-healthcheck
@@ -94,15 +95,13 @@ services:
       << : *geoserver-environment
       TOGGLE_MASTER: 'false'
       TOGGLE_SLAVE: 'true'
-      WEB_INTERFACE: 'true'
+      DISABLE_WEB_INTERFACE: 'true'
       EMBEDDED_BROKER: disabled
       BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       READONLY: enabled
     volumes: *geoserver-volumes
     networks: *geoserver-networks
     configs:
-      - source: web-xml-config
-        target: ${EXTRA_CONFIG_DIR}/web.xml
       - source: node-cluster-properties-config
         target: ${EXTRA_CONFIG_DIR}/cluster.properties
     healthcheck: *geoserver-healthcheck
@@ -151,10 +150,6 @@ services:
           cpus: '${POSTGRES_GWC_RESOURCES_RESERVATIONS_CPUS:-0.001}'
           memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-32M}
 
-volumes:
-  certs-vol:
-    name: ${CERTS_VOL_NAME:-geoserver-certs-vol}
-
 networks:
   gis-net:
     name: ${GIS_NET_NAME:-gis-net}
@@ -172,10 +167,6 @@ networks:
     external: true
 
 configs:
-  web-xml-config:
-    name: ${WEB_XML_CONFIG_NAME:-geoserver-web-xml-config}
-    file: ./config/web.xml
-
   master-cluster-properties-config:
     name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-master-cluster-properties-config}
     file: ./config/master-cluster.properties
