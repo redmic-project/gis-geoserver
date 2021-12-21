@@ -23,5 +23,5 @@ variables:
   variables:
     STACK: ${PROJECT_PARENT_NAME}
     DD_BACKUP_VOL_NAME: geoserver-data-vol
-    DD_PATHS_TO_EXCLUDE: cluster logs temp tmp
+    DD_PATHS_TO_EXCLUDE: cluster monitoring logs/*.log temp tmp
     DD_PUSHGATEWAY_LABEL: files-backup-redmic-geoserver
