@@ -8,6 +8,7 @@ include:
 
 stages:
   - deploy
+  - deploy-external-service
 
 variables:
   PROJECT_PARENT_NAME: gis
