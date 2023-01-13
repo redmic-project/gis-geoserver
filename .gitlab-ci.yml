@@ -20,8 +20,6 @@ variables:
 .deploy:
   variables:
     STACK: ${PROJECT_PARENT_NAME}
-  environment:
-    url: https://${DD_GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
 
 .deploy-external-service:
   variables:
