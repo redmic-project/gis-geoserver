@@ -2,6 +2,24 @@ version: '3.9'
 
 x-geoserver-root: &geoserver-root
   image: ${GEOSERVER_IMAGE_NAME:-kartoza/geoserver}:${GEOSERVER_IMAGE_TAG:-latest}
+  networks:
+    gis-net:
+    postgres-net:
+    traefik-net:
+  volumes:
+    - geoserver-data-vol:${GEOSERVER_DATA_DIR}
+    - fonts-vol:${FONTS_DIR}
+    - footprints-vol:${FOOTPRINTS_DATA_DIR}
+    - cache-vol:${GEOWEBCACHE_CACHE_DIR}
+  configs:
+    - source: cluster-properties-config
+      target: ${EXTRA_CONFIG_DIR}/cluster.properties
+  healthcheck:
+    test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
+    interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-1m}
+    timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-30s}
+    retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
+    start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-3m}
 
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
@@ -34,24 +52,6 @@ x-geoserver-environment: &geoserver-environment
   DISK_QUOTA_SIZE:
   GEOSERVER_LOG_LEVEL:
 
-x-geoserver-volumes: &geoserver-volumes
-  - geoserver-data-vol:${GEOSERVER_DATA_DIR}
-  - fonts-vol:${FONTS_DIR}
-  - footprints-vol:${FOOTPRINTS_DATA_DIR}
-  - cache-vol:${GEOWEBCACHE_CACHE_DIR}
-
-x-geoserver-networks: &geoserver-networks
-  gis-net:
-  postgres-net:
-  traefik-net:
-
-x-geoserver-healthcheck: &geoserver-healthcheck
-  test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
-  interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-1m}
-  timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-30s}
-  retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
-  start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-3m}
-
 x-geoserver-deploy: &geoserver-deploy
   mode: replicated
   restart_policy:
@@ -70,12 +70,6 @@ services:
       EMBEDDED_BROKER: enabled
       BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
       READONLY: disabled
-    volumes: *geoserver-volumes
-    networks: *geoserver-networks
-    configs:
-      - source: master-cluster-properties-config
-        target: ${EXTRA_CONFIG_DIR}/cluster.properties
-    healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
       replicas: 1
@@ -99,12 +93,6 @@ services:
       EMBEDDED_BROKER: disabled
       BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       READONLY: enabled
-    volumes: *geoserver-volumes
-    networks: *geoserver-networks
-    configs:
-      - source: node-cluster-properties-config
-        target: ${EXTRA_CONFIG_DIR}/cluster.properties
-    healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
       replicas: ${GEOSERVER_NODE_REPLICAS:-1}
@@ -167,10 +155,6 @@ networks:
     external: true
 
 configs:
-  master-cluster-properties-config:
-    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-master-cluster-properties-config}
-    file: ./config/master-cluster.properties
-
-  node-cluster-properties-config:
-    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-node-cluster-properties-config}
-    file: ./config/node-cluster.properties
+  cluster-properties-config:
+    name: ${CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-cluster-properties-config}
+    file: ./config/cluster.properties
