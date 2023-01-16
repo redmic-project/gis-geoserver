@@ -20,6 +20,7 @@ variables:
 .deploy:
   variables:
     STACK: ${PROJECT_PARENT_NAME}
+    STATUS_CHECK_DELAY: 300
 
 .deploy-external-service:
   variables:
