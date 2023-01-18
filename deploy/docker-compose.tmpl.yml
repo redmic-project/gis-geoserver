@@ -15,11 +15,14 @@ x-geoserver-root: &geoserver-root
     - source: cluster-properties-config
       target: ${EXTRA_CONFIG_DIR}/cluster.properties
   healthcheck:
-    test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
-    interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-1m}
-    timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-30s}
+    test: >
+      curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
+      -u '${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}'
+      http://localhost:${GEOSERVER_PORT}/geoserver/rest/about/version.xml
+    interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-30s}
+    timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
     retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
-    start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-3m}
+    start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-5m}
 
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
@@ -39,7 +42,10 @@ x-geoserver-environment: &geoserver-environment
   RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
   INSTANCE_STRING: '{{.Service.Name}}-{{.Task.Slot}}'
   CLUSTER_DURABILITY:
+  CLUSTER_CONNECTION_RETRY_COUNT:
+  CLUSTER_CONNECTION_MAX_WAIT:
   TOMCAT_EXTRAS:
+  ROOT_WEBAPP_REDIRECT:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
   CATALINA_OPTS: '-DHTTP_PROXY_NAME=$${HTTP_PROXY_NAME}'
   GEOSERVER_CSRF_WHITELIST: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
@@ -51,6 +57,7 @@ x-geoserver-environment: &geoserver-environment
   POSTGRES_PASS: '${POSTGRES_PASSWORD}'
   DISK_QUOTA_SIZE:
   GEOSERVER_LOG_LEVEL:
+  DISABLE_CORS:
 
 x-geoserver-deploy: &geoserver-deploy
   mode: replicated
@@ -123,6 +130,12 @@ services:
     volumes:
       - postgres-data-vol:${PGDATA}
       - wal-vol:${POSTGRES_INITDB_WALDIR}
+    healthcheck:
+      test: pg_isready
+      interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
+      start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}
