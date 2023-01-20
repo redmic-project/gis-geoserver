@@ -18,7 +18,7 @@ x-geoserver-root: &geoserver-root
     test: >
       curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
       -u '${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}'
-      http://localhost:${GEOSERVER_PORT}/geoserver/rest/about/version.xml
+      http://localhost:${GEOSERVER_PORT}${GEOSERVER_HEALTH_PATH}
     interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-30s}
     timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
     retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
@@ -66,6 +66,16 @@ x-geoserver-deploy: &geoserver-deploy
   update_config:
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
 
+x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-labels
+  traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_COOKIE_NAME}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.httponly: '${TRAEFIK_COOKIE_HTTPONLY}'
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.secure: '${TRAEFIK_COOKIE_SECURE}'
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.samesite: ${TRAEFIK_COOKIE_SAMESITE}
+  traefik.http.services.geoserver.loadbalancer.healthcheck.path: ${GEOSERVER_HEALTH_PATH}
+  traefik.http.services.geoserver.loadbalancer.healthcheck.headers.authorization: ${TRAEFIK_HEALTH_AUTH}
+
 services:
   geoserver-master:
     << : *geoserver-root
@@ -81,22 +91,18 @@ services:
       << : *geoserver-deploy
       replicas: 1
       labels:
+        << : *geoserver-traefik-common-service-labels
         traefik.enable: ${TRAEFIK_ENABLE}
 
         traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
+        traefik.http.routers.geoserver-master-admin.service: geoserver-master
 
-        traefik.http.routers.geoserver-master-default.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.geoserver-master-default.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
+        traefik.http.routers.geoserver-master.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.geoserver-master.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
+        traefik.http.routers.geoserver-master.service: geoserver
 
-        traefik.http.routers.geoserver-master-root.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.geoserver-master-root.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && Path(`/`)
-        traefik.http.middlewares.geoserver-addprefix.addprefix.prefix: /geoserver
-        traefik.http.routers.geoserver-master-root.middlewares: geoserver-addprefix
-
-        traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
-        traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
-        traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: traefik-geoserver
+        traefik.http.services.geoserver-master.loadbalancer.server.port: ${GEOSERVER_PORT}
 
   geoserver-node:
     << : *geoserver-root
@@ -114,13 +120,16 @@ services:
       placement:
         max_replicas_per_node: 1
       labels:
+        << : *geoserver-traefik-common-service-labels
         traefik.enable: ${TRAEFIK_ENABLE}
 
         traefik.http.routers.geoserver-node.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-node.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
-        traefik.http.routers.geoserver-node.service: geoserver
 
-        traefik.http.services.dummy.loadbalancer.server.port: 0
+        traefik.http.routers.geoserver-root.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.geoserver-root.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/`)
+        traefik.http.middlewares.geoserver-addprefix.addprefix.prefix: /geoserver
+        traefik.http.routers.geoserver-root.middlewares: geoserver-addprefix
 
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
