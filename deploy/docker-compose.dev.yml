@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   geoserver-master:
@@ -30,48 +30,24 @@ services:
 volumes:
   geoserver-data-vol:
     name: ${GEOSERVER_DATA_VOL_NAME}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${GEOSERVER_DATA_VOL_DEVICE:-:/geoserver-data-vol/}
+    driver: ${DEV_VOL_DRIVER}
 
   cache-vol:
     name: ${CACHE_VOL_NAME}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${CACHE_VOL_DEVICE:-:/geoserver-cache-vol/}
+    driver: ${DEV_VOL_DRIVER}
 
   fonts-vol:
     name: ${FONTS_VOL_NAME}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${FONTS_VOL_DEVICE:-:/geoserver-fonts-vol/}
+    driver: ${DEV_VOL_DRIVER}
 
   footprints-vol:
     name: ${FOOTPRINTS_VOL_NAME}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${FOOTPRINTS_VOL_DEVICE:-:/geoserver-footprints-vol/}
+    driver: ${DEV_VOL_DRIVER}
 
   postgres-data-vol:
     name: ${POSTGRES_DATA_VOL_NAME}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${POSTGRES_DATA_VOL_DEVICE:-:/postgres-gwc-data-vol/}
+    driver: ${DEV_VOL_DRIVER}
 
   wal-vol:
     name: ${WAL_VOL_NAME}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${WAL_VOL_DEVICE:-:/postgres-gwc-wal-vol/}
+    driver: ${DEV_VOL_DRIVER}

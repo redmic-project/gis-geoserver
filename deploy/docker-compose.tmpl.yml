@@ -1,7 +1,28 @@
-version: '3.8'
+version: '3.9'
 
 x-geoserver-root: &geoserver-root
   image: ${GEOSERVER_IMAGE_NAME:-kartoza/geoserver}:${GEOSERVER_IMAGE_TAG:-latest}
+  networks:
+    gis-net:
+    postgres-net:
+    traefik-net:
+  volumes:
+    - geoserver-data-vol:${GEOSERVER_DATA_DIR}
+    - fonts-vol:${FONTS_DIR}
+    - footprints-vol:${FOOTPRINTS_DATA_DIR}
+    - cache-vol:${GEOWEBCACHE_CACHE_DIR}
+  configs:
+    - source: cluster-properties-config
+      target: ${EXTRA_CONFIG_DIR}/cluster.properties
+  healthcheck:
+    test: >
+      curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
+      -u '${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}'
+      http://localhost:${GEOSERVER_PORT}${GEOSERVER_HEALTH_PATH}
+    interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-30s}
+    timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
+    retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
+    start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-5m}
 
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
@@ -21,7 +42,10 @@ x-geoserver-environment: &geoserver-environment
   RANDOMSTRING: '{{.Service.Name}}-{{.Task.Slot}}'
   INSTANCE_STRING: '{{.Service.Name}}-{{.Task.Slot}}'
   CLUSTER_DURABILITY:
+  CLUSTER_CONNECTION_RETRY_COUNT:
+  CLUSTER_CONNECTION_MAX_WAIT:
   TOMCAT_EXTRAS:
+  ROOT_WEBAPP_REDIRECT:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
   CATALINA_OPTS: '-DHTTP_PROXY_NAME=$${HTTP_PROXY_NAME}'
   GEOSERVER_CSRF_WHITELIST: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
@@ -33,24 +57,7 @@ x-geoserver-environment: &geoserver-environment
   POSTGRES_PASS: '${POSTGRES_PASSWORD}'
   DISK_QUOTA_SIZE:
   GEOSERVER_LOG_LEVEL:
-
-x-geoserver-volumes: &geoserver-volumes
-  - geoserver-data-vol:${GEOSERVER_DATA_DIR}
-  - fonts-vol:${FONTS_DIR}
-  - footprints-vol:${FOOTPRINTS_DATA_DIR}
-  - cache-vol:${GEOWEBCACHE_CACHE_DIR}
-
-x-geoserver-networks: &geoserver-networks
-  gis-net:
-  postgres-net:
-  traefik-net:
-
-x-geoserver-healthcheck: &geoserver-healthcheck
-  test: curl --fail --silent http://localhost:${GEOSERVER_PORT}/geoserver
-  interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-1m}
-  timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-30s}
-  retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
-  start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-3m}
+  DISABLE_CORS:
 
 x-geoserver-deploy: &geoserver-deploy
   mode: replicated
@@ -58,6 +65,16 @@ x-geoserver-deploy: &geoserver-deploy
     delay: ${GEOSERVER_RESTART_DELAY:-10s}
   update_config:
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
+
+x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-labels
+  traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_COOKIE_NAME}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.httponly: '${TRAEFIK_COOKIE_HTTPONLY}'
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.secure: '${TRAEFIK_COOKIE_SECURE}'
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.samesite: ${TRAEFIK_COOKIE_SAMESITE}
+  traefik.http.services.geoserver.loadbalancer.healthcheck.path: ${GEOSERVER_HEALTH_PATH}
+  traefik.http.services.geoserver.loadbalancer.healthcheck.headers.authorization: ${TRAEFIK_HEALTH_AUTH}
 
 services:
   geoserver-master:
@@ -70,24 +87,22 @@ services:
       EMBEDDED_BROKER: enabled
       BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
       READONLY: disabled
-    volumes: *geoserver-volumes
-    networks: *geoserver-networks
-    configs:
-      - source: master-cluster-properties-config
-        target: ${EXTRA_CONFIG_DIR}/cluster.properties
-    healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
       replicas: 1
       labels:
-        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver'
-        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
-        traefik.web.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/web'
-        traefik.rest.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/rest'
-        traefik.login.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/j_spring_security'
-        traefik.gwc.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/gwc/rest'
-        traefik.backend: geoserver-master
-        traefik.port: '${GEOSERVER_PORT}'
+        << : *geoserver-traefik-common-service-labels
+        traefik.enable: ${TRAEFIK_ENABLE}
+
+        traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
+        traefik.http.routers.geoserver-master-admin.service: geoserver-master
+
+        traefik.http.routers.geoserver-master.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.geoserver-master.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
+        traefik.http.routers.geoserver-master.service: geoserver
+
+        traefik.http.services.geoserver-master.loadbalancer.server.port: ${GEOSERVER_PORT}
 
   geoserver-node:
     << : *geoserver-root
@@ -99,25 +114,22 @@ services:
       EMBEDDED_BROKER: disabled
       BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       READONLY: enabled
-    volumes: *geoserver-volumes
-    networks: *geoserver-networks
-    configs:
-      - source: node-cluster-properties-config
-        target: ${EXTRA_CONFIG_DIR}/cluster.properties
-    healthcheck: *geoserver-healthcheck
     deploy:
       << : *geoserver-deploy
       replicas: ${GEOSERVER_NODE_REPLICAS:-1}
       placement:
         max_replicas_per_node: 1
       labels:
-        traefik.default.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};PathPrefix:/geoserver/'
-        traefik.root.frontend.rule: 'Host:${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME};Path:/;AddPrefix:/geoserver'
-        traefik.backend: geoserver-node
-        traefik.backend.loadbalancer.stickiness: 'true'
-        traefik.backend.loadbalancer.stickiness.cookieName: traefik-geoserver-node
-        traefik.backend.loadbalancer.method: drr
-        traefik.port: '${GEOSERVER_PORT}'
+        << : *geoserver-traefik-common-service-labels
+        traefik.enable: ${TRAEFIK_ENABLE}
+
+        traefik.http.routers.geoserver-node.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.geoserver-node.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
+
+        traefik.http.routers.geoserver-root.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.geoserver-root.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/`)
+        traefik.http.middlewares.geoserver-addprefix.addprefix.prefix: /geoserver
+        traefik.http.routers.geoserver-root.middlewares: geoserver-addprefix
 
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
@@ -135,6 +147,12 @@ services:
     volumes:
       - postgres-data-vol:${PGDATA}
       - wal-vol:${POSTGRES_INITDB_WALDIR}
+    healthcheck:
+      test: pg_isready
+      interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
+      start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}
@@ -167,10 +185,6 @@ networks:
     external: true
 
 configs:
-  master-cluster-properties-config:
-    name: ${MASTER_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-master-cluster-properties-config}
-    file: ./config/master-cluster.properties
-
-  node-cluster-properties-config:
-    name: ${NODE_CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-node-cluster-properties-config}
-    file: ./config/node-cluster.properties
+  cluster-properties-config:
+    name: ${CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-cluster-properties-config}
+    file: ./config/cluster.properties
