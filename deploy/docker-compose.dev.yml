@@ -8,10 +8,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS:-1}'
+          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS}'
           memory: ${DEV_GEOSERVER_MASTER_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS}'
           memory: ${DEV_GEOSERVER_MASTER_RESOURCES_RESERVATIONS_MEMORY}
 
   geoserver-node:
@@ -21,10 +21,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '${GEOSERVER_NODE_RESOURCES_LIMITS_CPUS:-1}'
+          cpus: '${GEOSERVER_NODE_RESOURCES_LIMITS_CPUS}'
           memory: ${DEV_GEOSERVER_NODE_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${GEOSERVER_NODE_RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          cpus: '${GEOSERVER_NODE_RESOURCES_RESERVATIONS_CPUS}'
           memory: ${DEV_GEOSERVER_NODE_RESOURCES_RESERVATIONS_MEMORY}
 
 volumes:
