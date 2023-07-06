@@ -11,9 +11,6 @@ x-geoserver-root: &geoserver-root
     - fonts-vol:${FONTS_DIR}
     - footprints-vol:${FOOTPRINTS_DATA_DIR}
     - cache-vol:${GEOWEBCACHE_CACHE_DIR}
-  configs:
-    - source: cluster-properties-config
-      target: ${EXTRA_CONFIG_DIR}/cluster.properties
   healthcheck:
     test: >
       curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
@@ -67,6 +64,7 @@ x-geoserver-deploy: &geoserver-deploy
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
 
 x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-labels
+  traefik.enable: ${TRAEFIK_ENABLE}
   traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
   traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
   traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_COOKIE_NAME}
@@ -92,7 +90,6 @@ services:
       replicas: 1
       labels:
         << : *geoserver-traefik-common-service-labels
-        traefik.enable: ${TRAEFIK_ENABLE}
 
         traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
@@ -114,6 +111,7 @@ services:
       EMBEDDED_BROKER: disabled
       BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       READONLY: enabled
+      GEOSERVER_XSTREAM_WHITELIST:
     deploy:
       << : *geoserver-deploy
       replicas: ${GEOSERVER_NODE_REPLICAS:-1}
@@ -121,7 +119,6 @@ services:
         max_replicas_per_node: 1
       labels:
         << : *geoserver-traefik-common-service-labels
-        traefik.enable: ${TRAEFIK_ENABLE}
 
         traefik.http.routers.geoserver-node.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-node.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
@@ -134,8 +131,8 @@ services:
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
     command: >
-      -c work_mem=${POSTGRES_GWC_WORK_MEM:-16MB}
-      -c max_wal_size=${POSTGRES_GWC_MAX_WAL_SIZE:-256MB}
+      -c work_mem=${POSTGRES_GWC_WORK_MEM}
+      -c max_wal_size=${POSTGRES_GWC_MAX_WAL_SIZE}
     environment:
       POSTGRES_USER:
       POSTGRES_PASSWORD:
@@ -148,7 +145,7 @@ services:
       - postgres-data-vol:${PGDATA}
       - wal-vol:${POSTGRES_INITDB_WALDIR}
     healthcheck:
-      test: pg_isready
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
       interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
@@ -162,11 +159,11 @@ services:
         delay: ${POSTGRES_GWC_UPDATE_DELAY:-30s}
       resources:
         limits:
-          cpus: '${POSTGRES_GWC_RESOURCES_LIMITS_CPUS:-0.5}'
+          cpus: '${POSTGRES_GWC_RESOURCES_LIMITS_CPUS:-1}'
           memory: ${POSTGRES_GWC_RESOURCES_LIMITS_MEMORY:-128M}
         reservations:
-          cpus: '${POSTGRES_GWC_RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-32M}
+          cpus: '${POSTGRES_GWC_RESOURCES_RESERVATIONS_CPUS:-0.01}'
+          memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-64M}
 
 networks:
   gis-net:
@@ -183,8 +180,3 @@ networks:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
-
-configs:
-  cluster-properties-config:
-    name: ${CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-cluster-properties-config}
-    file: ./config/cluster.properties
