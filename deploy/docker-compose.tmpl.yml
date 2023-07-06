@@ -111,6 +111,7 @@ services:
       EMBEDDED_BROKER: disabled
       BROKER_URL: 'tcp://geoserver-master:${BROKER_PORT}'
       READONLY: enabled
+      GEOSERVER_XSTREAM_WHITELIST:
     deploy:
       << : *geoserver-deploy
       replicas: ${GEOSERVER_NODE_REPLICAS:-1}
