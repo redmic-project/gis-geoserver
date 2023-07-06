@@ -11,9 +11,6 @@ x-geoserver-root: &geoserver-root
     - fonts-vol:${FONTS_DIR}
     - footprints-vol:${FOOTPRINTS_DATA_DIR}
     - cache-vol:${GEOWEBCACHE_CACHE_DIR}
-  configs:
-    - source: cluster-properties-config
-      target: ${EXTRA_CONFIG_DIR}/cluster.properties
   healthcheck:
     test: >
       curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
@@ -182,8 +179,3 @@ networks:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
-
-configs:
-  cluster-properties-config:
-    name: ${CLUSTER_PROPERTIES_CONFIG_NAME:-geoserver-cluster-properties-config}
-    file: ./config/cluster.properties
