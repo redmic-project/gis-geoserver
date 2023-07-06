@@ -67,6 +67,7 @@ x-geoserver-deploy: &geoserver-deploy
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
 
 x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-labels
+  traefik.enable: ${TRAEFIK_ENABLE}
   traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
   traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
   traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_COOKIE_NAME}
@@ -92,7 +93,6 @@ services:
       replicas: 1
       labels:
         << : *geoserver-traefik-common-service-labels
-        traefik.enable: ${TRAEFIK_ENABLE}
 
         traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
@@ -121,7 +121,6 @@ services:
         max_replicas_per_node: 1
       labels:
         << : *geoserver-traefik-common-service-labels
-        traefik.enable: ${TRAEFIK_ENABLE}
 
         traefik.http.routers.geoserver-node.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-node.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
@@ -134,8 +133,8 @@ services:
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
     command: >
-      -c work_mem=${POSTGRES_GWC_WORK_MEM:-16MB}
-      -c max_wal_size=${POSTGRES_GWC_MAX_WAL_SIZE:-256MB}
+      -c work_mem=${POSTGRES_GWC_WORK_MEM}
+      -c max_wal_size=${POSTGRES_GWC_MAX_WAL_SIZE}
     environment:
       POSTGRES_USER:
       POSTGRES_PASSWORD:
@@ -162,11 +161,11 @@ services:
         delay: ${POSTGRES_GWC_UPDATE_DELAY:-30s}
       resources:
         limits:
-          cpus: '${POSTGRES_GWC_RESOURCES_LIMITS_CPUS:-0.5}'
+          cpus: '${POSTGRES_GWC_RESOURCES_LIMITS_CPUS:-1}'
           memory: ${POSTGRES_GWC_RESOURCES_LIMITS_MEMORY:-128M}
         reservations:
-          cpus: '${POSTGRES_GWC_RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-32M}
+          cpus: '${POSTGRES_GWC_RESOURCES_RESERVATIONS_CPUS:-0.01}'
+          memory: ${POSTGRES_GWC_RESOURCES_RESERVATIONS_MEMORY:-64M}
 
 networks:
   gis-net:
