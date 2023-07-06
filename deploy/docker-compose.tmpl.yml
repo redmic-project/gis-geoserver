@@ -144,7 +144,7 @@ services:
       - postgres-data-vol:${PGDATA}
       - wal-vol:${POSTGRES_INITDB_WALDIR}
     healthcheck:
-      test: pg_isready -U ${POSTGRES_USER}
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
       interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
