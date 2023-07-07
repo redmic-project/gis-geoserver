@@ -44,8 +44,7 @@ x-geoserver-environment: &geoserver-environment
   TOMCAT_EXTRAS:
   ROOT_WEBAPP_REDIRECT:
   GEOSERVER_NODE_OPTS: 'id:{{.Service.Name}}-{{.Task.Slot}};background:${GEOSERVER_LABEL_BACKGROUND};color:${GEOSERVER_LABEL_COLOR}'
-  CATALINA_OPTS: '-DHTTP_PROXY_NAME=$${HTTP_PROXY_NAME}'
-  GEOSERVER_CSRF_WHITELIST: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
+  CSRF_WHITELIST: '${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}'
   DB_BACKEND: postgres
   HOST: postgres-gwc
   POSTGRES_PORT: 5432
@@ -93,6 +92,8 @@ services:
 
         traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
+        traefik.http.middlewares.add-proxy-protocol-header.headers.customrequestheaders.x-forwarded-proto: https
+        traefik.http.routers.geoserver-master-admin.middlewares: add-proxy-protocol-header
         traefik.http.routers.geoserver-master-admin.service: geoserver-master
 
         traefik.http.routers.geoserver-master.entrypoints: ${TRAEFIK_ENTRYPOINT}
@@ -149,7 +150,7 @@ services:
       interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
-      start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-1m}
+      start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-5m}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}
