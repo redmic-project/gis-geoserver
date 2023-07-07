@@ -150,7 +150,7 @@ services:
       interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
-      start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-1m}
+      start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-5m}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}
