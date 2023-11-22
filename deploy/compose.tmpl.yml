@@ -1,5 +1,3 @@
-version: '3.9'
-
 x-geoserver-root: &geoserver-root
   image: ${GEOSERVER_IMAGE_NAME:-kartoza/geoserver}:${GEOSERVER_IMAGE_TAG:-latest}
   networks:
