@@ -61,15 +61,15 @@ x-geoserver-deploy: &geoserver-deploy
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
 
 x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-labels
-  traefik.enable: ${TRAEFIK_ENABLE}
+  traefik.enable: ${TRAEFIK_ENABLE:-true}
 
   traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
 
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_COOKIE_NAME}
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.httponly: '${TRAEFIK_COOKIE_HTTPONLY}'
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.secure: '${TRAEFIK_COOKIE_SECURE}'
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.samesite: ${TRAEFIK_COOKIE_SAMESITE}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie: ${TRAEFIK_STICKY_COOKIE:-true}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_STICKY_COOKIE_NAME:-traefik-geoserver}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.httponly: ${TRAEFIK_STICKY_COOKIE_HTTPONLY:-true}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.secure: ${TRAEFIK_STICKY_COOKIE_SECURE:-true}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.samesite: ${TRAEFIK_STICKY_COOKIE_SAMESITE:-lax}
 
   traefik.http.services.geoserver.loadbalancer.healthcheck.path: ${GEOSERVER_HEALTH_PATH}
   traefik.http.services.geoserver.loadbalancer.healthcheck.headers.authorization: ${TRAEFIK_HEALTH_AUTH}
