@@ -1,5 +1,3 @@
-version: '3.9'
-
 x-geoserver-root: &geoserver-root
   image: ${GEOSERVER_IMAGE_NAME:-kartoza/geoserver}:${GEOSERVER_IMAGE_TAG:-latest}
   networks:
@@ -20,6 +18,7 @@ x-geoserver-root: &geoserver-root
     timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
     retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
     start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-5m}
+    disable: ${GEOSERVER_HEALTHCHECK_DISABLE:-false}
 
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
@@ -63,13 +62,16 @@ x-geoserver-deploy: &geoserver-deploy
     delay: ${GEOSERVER_UPDATE_DELAY:-3m}
 
 x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-labels
-  traefik.enable: ${TRAEFIK_ENABLE}
+  traefik.enable: ${TRAEFIK_ENABLE:-true}
+
   traefik.http.services.geoserver.loadbalancer.server.port: ${GEOSERVER_PORT}
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie: 'true'
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_COOKIE_NAME}
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.httponly: '${TRAEFIK_COOKIE_HTTPONLY}'
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.secure: '${TRAEFIK_COOKIE_SECURE}'
-  traefik.http.services.geoserver.loadbalancer.sticky.cookie.samesite: ${TRAEFIK_COOKIE_SAMESITE}
+
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie: ${TRAEFIK_STICKY_COOKIE:-true}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.name: ${TRAEFIK_STICKY_COOKIE_NAME:-traefik-geoserver}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.httponly: ${TRAEFIK_STICKY_COOKIE_HTTPONLY:-true}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.secure: ${TRAEFIK_STICKY_COOKIE_SECURE:-true}
+  traefik.http.services.geoserver.loadbalancer.sticky.cookie.samesite: ${TRAEFIK_STICKY_COOKIE_SAMESITE:-lax}
+
   traefik.http.services.geoserver.loadbalancer.healthcheck.path: ${GEOSERVER_HEALTH_PATH}
   traefik.http.services.geoserver.loadbalancer.healthcheck.headers.authorization: ${TRAEFIK_HEALTH_AUTH}
 
@@ -80,7 +82,7 @@ services:
       << : *geoserver-environment
       TOGGLE_MASTER: 'true'
       TOGGLE_SLAVE: 'false'
-      WEB_INTERFACE: 'false'
+      DISABLE_WEB_INTERFACE: 'false'
       EMBEDDED_BROKER: enabled
       BROKER_URL: 'tcp://0.0.0.0:${BROKER_PORT}'
       READONLY: disabled
@@ -92,12 +94,10 @@ services:
 
         traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
-        traefik.http.middlewares.add-proxy-protocol-header.headers.customrequestheaders.x-forwarded-proto: https
-        traefik.http.routers.geoserver-master-admin.middlewares: add-proxy-protocol-header
         traefik.http.routers.geoserver-master-admin.service: geoserver-master
 
         traefik.http.routers.geoserver-master.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.geoserver-master.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
+        traefik.http.routers.geoserver-master.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.routers.geoserver-master.service: geoserver
 
         traefik.http.services.geoserver-master.loadbalancer.server.port: ${GEOSERVER_PORT}
@@ -122,12 +122,7 @@ services:
         << : *geoserver-traefik-common-service-labels
 
         traefik.http.routers.geoserver-node.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.geoserver-node.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/geoserver`)
-
-        traefik.http.routers.geoserver-root.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.geoserver-root.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && PathPrefix(`/`)
-        traefik.http.middlewares.geoserver-addprefix.addprefix.prefix: /geoserver
-        traefik.http.routers.geoserver-root.middlewares: geoserver-addprefix
+        traefik.http.routers.geoserver-node.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
 
   postgres-gwc:
     image: ${POSTGRES_IMAGE_NAME:-postgres}:${POSTGRES_IMAGE_TAG:-alpine}
@@ -151,6 +146,7 @@ services:
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
       start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-5m}
+      disable: ${POSTGRES_HEALTHCHECK_DISABLE:-false}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}

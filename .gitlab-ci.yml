@@ -1,13 +1,13 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
-    file: '/deployment.yml'
+    file: '/deployment-service/docker-deploy.yml'
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
     file: '/deployment-external-service/backup-files.yml'
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
-    file: '/maintenance.yml'
+    file: '/deployment-service/maintenance.yml'
 
 stages:
   - deploy
@@ -20,7 +20,7 @@ variables:
 .deploy:
   variables:
     STACK: ${PROJECT_PARENT_NAME}
-    STATUS_CHECK_DELAY: 300
+    STATUS_CHECK_DELAY: 360
 
 .deploy-external-service:
   variables:
