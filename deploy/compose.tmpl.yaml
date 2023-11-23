@@ -94,8 +94,6 @@ services:
 
         traefik.http.routers.geoserver-master-admin.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.geoserver-master-admin.rule: Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && (PathPrefix(`/geoserver/web`) || PathPrefix(`/geoserver/rest`) || PathPrefix(`/geoserver/j_spring_security`) || PathPrefix(`/geoserver/gwc/rest`))
-        traefik.http.middlewares.add-proxy-protocol-header.headers.customrequestheaders.x-forwarded-proto: https
-        traefik.http.routers.geoserver-master-admin.middlewares: add-proxy-protocol-header
         traefik.http.routers.geoserver-master-admin.service: geoserver-master
 
         traefik.http.routers.geoserver-master.entrypoints: ${TRAEFIK_ENTRYPOINT}
