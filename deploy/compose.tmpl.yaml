@@ -10,15 +10,11 @@ x-geoserver-root: &geoserver-root
     - footprints-vol:${FOOTPRINTS_DATA_DIR}
     - cache-vol:${GEOWEBCACHE_CACHE_DIR}
   healthcheck:
-    test: >
-      curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
-      -u '${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}'
-      http://localhost:${GEOSERVER_PORT}${GEOSERVER_HEALTH_PATH}
+    test: ${GEOSERVER_HEALTHCHECK_TEST}
     interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-30s}
     timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
     retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
     start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-5m}
-    disable: ${GEOSERVER_HEALTHCHECK_DISABLE:-false}
 
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
@@ -141,12 +137,11 @@ services:
       - postgres-data-vol:${PGDATA}
       - wal-vol:${POSTGRES_INITDB_WALDIR}
     healthcheck:
-      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      test: ${POSTGRES_HEALTHCHECK_TEST:-pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}}
       interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
       start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-5m}
-      disable: ${POSTGRES_HEALTHCHECK_DISABLE:-false}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}
