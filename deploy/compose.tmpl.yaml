@@ -18,7 +18,6 @@ x-geoserver-root: &geoserver-root
     timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
     retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
     start_period: ${GEOSERVER_HEALTHCHECK_START_PERIOD:-5m}
-    disable: ${GEOSERVER_HEALTHCHECK_DISABLE:-false}
 
 x-geoserver-environment: &geoserver-environment
   GEOSERVER_DATA_DIR:
@@ -146,7 +145,6 @@ services:
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
       start_period: ${POSTGRES_HEALTHCHECK_START_PERIOD:-5m}
-      disable: ${POSTGRES_HEALTHCHECK_DISABLE:-false}
     deploy:
       mode: replicated
       replicas: ${POSTGRES_GWC_REPLICAS:-1}
