@@ -10,15 +10,10 @@ x-geoserver-root: &geoserver-root
     - footprints-vol:${FOOTPRINTS_DATA_DIR}
     - cache-vol:${GEOWEBCACHE_CACHE_DIR}
   healthcheck:
-    test: |
-      if [ ${GEOSERVER_HEALTHCHECK_DISABLE:-0} -ne 0 ]
-      then
-        :
-      else
-        curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null \
-        -u '${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}' \
-        http://localhost:${GEOSERVER_PORT}${GEOSERVER_HEALTH_PATH}
-      fi
+    test: >
+      curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null
+      -u '${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}'
+      http://localhost:${GEOSERVER_PORT}${GEOSERVER_HEALTH_PATH}
     interval: ${GEOSERVER_HEALTHCHECK_INTERVAL:-30s}
     timeout: ${GEOSERVER_HEALTHCHECK_TIMEOUT:-15s}
     retries: ${GEOSERVER_HEALTHCHECK_RETRIES:-5}
@@ -145,13 +140,7 @@ services:
       - postgres-data-vol:${PGDATA}
       - wal-vol:${POSTGRES_INITDB_WALDIR}
     healthcheck:
-      test: |
-        if [ ${POSTGRES_HEALTHCHECK_DISABLE:-0} -ne 0 ]
-        then
-          :
-        else
-          pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
-        fi
+      test: pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
       interval: ${POSTGRES_HEALTHCHECK_INTERVAL:-30s}
       timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-15s}
       retries: ${POSTGRES_HEALTHCHECK_RETRIES:-5}
