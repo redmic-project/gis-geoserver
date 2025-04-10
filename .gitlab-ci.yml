@@ -2,34 +2,11 @@ include:
   - project: 'redmic-project/gitlab-ci-templates'
     ref: master
     file: '/deployment-service/docker-deploy.yml'
-  - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/deployment-external-service/backup-files.yml'
-  - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/deployment-service/maintenance.yml'
 
 stages:
   - deploy
-  - deploy-external-service
-  - maintenance
-
-variables:
-  PROJECT_PARENT_NAME: gis
 
 .deploy:
   variables:
-    STACK: ${PROJECT_PARENT_NAME}
+    STACK: gis
     STATUS_CHECK_DELAY: 360
-
-.deploy-external-service:
-  variables:
-    STACK: ${PROJECT_PARENT_NAME}
-    DD_BACKUP_VOL_NAME: geoserver-data-vol
-    DD_PATHS_TO_EXCLUDE: cluster monitoring logs/*.log temp tmp
-    DD_PUSHGATEWAY_LABEL: files-backup-redmic-geoserver
-
-.scheduled-run:
-  variables:
-    STACK: ${PROJECT_PARENT_NAME}
-    SERVICE: ${PROJECT_PARENT_NAME}_backup-files

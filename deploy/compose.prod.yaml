@@ -9,11 +9,11 @@ services:
           - node.role == worker
       resources:
         limits:
-          cpus: '${GEOSERVER_MASTER_RESOURCES_LIMITS_CPUS}'
-          memory: ${PRO_GEOSERVER_MASTER_RESOURCES_LIMITS_MEMORY}
+          cpus: '${MASTER_RESOURCES_LIMITS_CPUS}'
+          memory: ${PRO_MASTER_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${GEOSERVER_MASTER_RESOURCES_RESERVATIONS_CPUS}'
-          memory: ${PRO_GEOSERVER_MASTER_RESOURCES_RESERVATIONS_MEMORY}
+          cpus: '${MASTER_RESOURCES_RESERVATIONS_CPUS}'
+          memory: ${PRO_MASTER_RESOURCES_RESERVATIONS_MEMORY}
 
   geoserver-node:
     environment:
@@ -25,47 +25,35 @@ services:
           - node.role == worker
       resources:
         limits:
-          cpus: '${GEOSERVER_NODE_RESOURCES_LIMITS_CPUS}'
-          memory: ${PRO_GEOSERVER_NODE_RESOURCES_LIMITS_MEMORY}
+          cpus: '${NODE_RESOURCES_LIMITS_CPUS}'
+          memory: ${PRO_NODE_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${GEOSERVER_NODE_RESOURCES_RESERVATIONS_CPUS}'
-          memory: ${PRO_GEOSERVER_NODE_RESOURCES_RESERVATIONS_MEMORY}
+          cpus: '${NODE_RESOURCES_RESERVATIONS_CPUS}'
+          memory: ${PRO_NODE_RESOURCES_RESERVATIONS_MEMORY}
 
 volumes:
-  geoserver-data-vol:
-    name: ${GEOSERVER_DATA_VOL_NAME}
-    driver: 'cloudstor:aws'
+  data-vol:
+    name: ${DATA_VOL_NAME}
+    driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: shared
       perfmode: maxio
 
   cache-vol:
     name: ${CACHE_VOL_NAME}
-    driver: 'cloudstor:aws'
+    driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: shared
       perfmode: maxio
 
   fonts-vol:
     name: ${FONTS_VOL_NAME}
-    driver: 'cloudstor:aws'
+    driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: shared
 
   footprints-vol:
     name: ${FOOTPRINTS_VOL_NAME}
-    driver: 'cloudstor:aws'
-    driver_opts:
-      backing: shared
-
-  postgres-data-vol:
-    name: ${POSTGRES_DATA_VOL_NAME}
-    driver: 'cloudstor:aws'
-    driver_opts:
-      backing: shared
-
-  wal-vol:
-    name: ${WAL_VOL_NAME}
-    driver: 'cloudstor:aws'
+    driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: shared
