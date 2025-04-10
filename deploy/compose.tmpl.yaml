@@ -129,7 +129,7 @@ networks:
 
   postgres-gwc-net:
     name: ${POSTGRES_GWC_NET_NAME:-postgres-gwc-net}
-    driver: ${POSTGRES_NET_DRIVER:-overlay}
+    driver: ${POSTGRES_GWC_NET_DRIVER:-overlay}
     external: true
 
   postgres-net:
