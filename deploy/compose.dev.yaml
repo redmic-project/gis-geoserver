@@ -1,29 +1,29 @@
 services:
   geoserver-master:
     environment:
-      INITIAL_MEMORY: ${DEV_MASTER_INITIAL_MEMORY}
-      MAXIMUM_MEMORY: ${DEV_MASTER_MAXIMUM_MEMORY}
+      INITIAL_MEMORY: ${DEV_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${DEV_MAXIMUM_MEMORY}
     deploy:
       resources:
         limits:
-          cpus: '${MASTER_RESOURCES_LIMITS_CPUS}'
-          memory: ${DEV_MASTER_RESOURCES_LIMITS_MEMORY}
+          cpus: '${DEV_RESOURCES_LIMITS_CPUS}'
+          memory: ${DEV_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${MASTER_RESOURCES_RESERVATIONS_CPUS}'
-          memory: ${DEV_MASTER_RESOURCES_RESERVATIONS_MEMORY}
+          cpus: '${DEV_RESOURCES_RESERVATIONS_CPUS}'
+          memory: ${DEV_RESOURCES_RESERVATIONS_MEMORY}
 
   geoserver-node:
     environment:
-      INITIAL_MEMORY: ${DEV_NODE_INITIAL_MEMORY}
-      MAXIMUM_MEMORY: ${DEV_NODE_MAXIMUM_MEMORY}
+      INITIAL_MEMORY: ${DEV_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${DEV_MAXIMUM_MEMORY}
     deploy:
       resources:
         limits:
-          cpus: '${NODE_RESOURCES_LIMITS_CPUS}'
-          memory: ${DEV_NODE_RESOURCES_LIMITS_MEMORY}
+          cpus: '${DEV_RESOURCES_LIMITS_CPUS}'
+          memory: ${DEV_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${NODE_RESOURCES_RESERVATIONS_CPUS}'
-          memory: ${DEV_NODE_RESOURCES_RESERVATIONS_MEMORY}
+          cpus: '${DEV_RESOURCES_RESERVATIONS_CPUS}'
+          memory: ${DEV_RESOURCES_RESERVATIONS_MEMORY}
 
 volumes:
   data-vol:
