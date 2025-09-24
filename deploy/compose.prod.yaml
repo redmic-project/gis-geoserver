@@ -1,35 +1,35 @@
 services:
   geoserver-master:
     environment:
-      INITIAL_MEMORY: ${PRO_MASTER_INITIAL_MEMORY}
-      MAXIMUM_MEMORY: ${PRO_MASTER_MAXIMUM_MEMORY}
+      INITIAL_MEMORY: ${PRO_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${PRO_MAXIMUM_MEMORY}
     deploy:
       placement:
         constraints:
           - node.role == worker
       resources:
         limits:
-          cpus: '${MASTER_RESOURCES_LIMITS_CPUS}'
-          memory: ${PRO_MASTER_RESOURCES_LIMITS_MEMORY}
+          cpus: '${PRO_RESOURCES_LIMITS_CPUS}'
+          memory: ${PRO_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${MASTER_RESOURCES_RESERVATIONS_CPUS}'
-          memory: ${PRO_MASTER_RESOURCES_RESERVATIONS_MEMORY}
+          cpus: '${PRO_RESOURCES_RESERVATIONS_CPUS}'
+          memory: ${PRO_RESOURCES_RESERVATIONS_MEMORY}
 
   geoserver-node:
     environment:
-      INITIAL_MEMORY: ${PRO_NODE_INITIAL_MEMORY}
-      MAXIMUM_MEMORY: ${PRO_NODE_MAXIMUM_MEMORY}
+      INITIAL_MEMORY: ${PRO_INITIAL_MEMORY}
+      MAXIMUM_MEMORY: ${PRO_MAXIMUM_MEMORY}
     deploy:
       placement:
         constraints:
           - node.role == worker
       resources:
         limits:
-          cpus: '${NODE_RESOURCES_LIMITS_CPUS}'
-          memory: ${PRO_NODE_RESOURCES_LIMITS_MEMORY}
+          cpus: '${PRO_RESOURCES_LIMITS_CPUS}'
+          memory: ${PRO_RESOURCES_LIMITS_MEMORY}
         reservations:
-          cpus: '${NODE_RESOURCES_RESERVATIONS_CPUS}'
-          memory: ${PRO_NODE_RESOURCES_RESERVATIONS_MEMORY}
+          cpus: '${PRO_RESOURCES_RESERVATIONS_CPUS}'
+          memory: ${PRO_RESOURCES_RESERVATIONS_MEMORY}
 
 volumes:
   data-vol:
