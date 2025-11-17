@@ -56,6 +56,11 @@ x-geoserver-environment: &geoserver-environment
   EXISTING_DATA_DIR:
   CHOWN_DATA_DIR:
   ADDITIONAL_JAVA_STARTUP_OPTIONS:
+  IIO_S3_AWS_ENDPOINT:
+  IIO_S3_AWS_FORCE_PATH_STYLE:
+  IIO_S3_AWS_REGION:
+  IIO_S3_AWS_USER:
+  IIO_S3_AWS_PASSWORD:
 
 x-geoserver-deploy: &geoserver-deploy
   mode: replicated
