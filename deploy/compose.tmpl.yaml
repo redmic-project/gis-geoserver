@@ -80,6 +80,11 @@ x-geoserver-traefik-common-service-labels: &geoserver-traefik-common-service-lab
   traefik.http.services.geoserver.loadbalancer.healthcheck.path: ${GEOSERVER_HEALTH_PATH}
   traefik.http.services.geoserver.loadbalancer.healthcheck.headers.authorization: ${TRAEFIK_HEALTH_AUTH}
 
+  traefik.http.routers.geoserver-noop.entrypoints: ${TRAEFIK_ENTRYPOINT}
+  traefik.http.routers.geoserver-noop.rule: >-
+    Host(`${GEOSERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`) && HeadersRegexp(`referer`, `.+${RESTRICTED_REFERERS}.*`)
+  traefik.http.routers.geoserver-noop.service: noop@internal
+
 services:
   geoserver-master:
     << : *geoserver-root
